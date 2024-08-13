@@ -66,7 +66,13 @@ contract MainRegistry {
 
 	constructor(address _owner) {
 		owner = _owner;
-		addAuthorizedAddress(owner); //Mainly for testing purpose
+		authorizedAddresses[owner] = true;
+
+		users[_owner] = UserProfile({
+			userAddress: _owner,
+			userName: "test jojo",
+			attestationIds: new uint256[](0)
+		}); //Only for testing purpose
 	}
 
 	function _registerUser(
@@ -103,12 +109,13 @@ contract MainRegistry {
 		uint256 _newAttestationId = _attestationIds.current();
 		attestationAddresses[_newAttestationId] = _attestationAddress; //link attestationId <-> SmartContract Addr
 
+		//IS THERE A P¨BLM HERE ? BECAUSE users[] get updated but we push in user
 		for (uint i = 0; i < _participants.length; i++) {
 			UserProfile storage user = users[_participants[i]];
 			if (user.userAddress == address(0)) {
 				_registerUser(_participants[i], ""); // Register with empty name if user doesn't exist yet
 			}
-			user.attestationIds.push(_newAttestationId);
+			users[_participants[i]].attestationIds.push(_newAttestationId);
 			emit AttestationAddedToUser(_participants[i], _newAttestationId);
 		}
 
