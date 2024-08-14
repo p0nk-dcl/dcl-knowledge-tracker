@@ -47,6 +47,7 @@
   "dependencies": {
     "@svgdotjs/svg.js": "^3.2.4",
     "canvas": "^2.11.2",
+    "inherits": "^2.0.4",
     "svgdom": "^0.1.19"
   }
 }
