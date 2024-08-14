@@ -37,10 +37,16 @@
   },
   "packageManager": "yarn@3.2.3",
   "devDependencies": {
+    "@types/svgdom": "^0.1.2",
     "husky": "^8.0.1",
     "lint-staged": "^13.0.3"
   },
   "engines": {
     "node": ">=18.17.0"
+  },
+  "dependencies": {
+    "@svgdotjs/svg.js": "^3.2.4",
+    "canvas": "^2.11.2",
+    "svgdom": "^0.1.19"
   }
 }

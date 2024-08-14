@@ -5,10 +5,25 @@ import Link from "next/link";
 import type { NextPage } from "next";
 import { useAccount } from "wagmi";
 import { BugAntIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
-import { Address } from "~~/components/scaffold-eth";
-// import { create as ipfsHttpClient } from 'ipfs-http-client';
+import { generateNFTMetadataImage, NFTMetadata } from '../utils/dcl/generateMetadataImage';
+
+// import { Address } from "~~/components/scaffold-eth";
+import { create as ipfsHttpClient } from 'ipfs-http-client';
 
 // const client = ipfsHttpClient({ url: 'https://ipfs.infura.io:5001/api/v0' });
+
+// Configure IPFS client with Infura
+const projectId = process.env.INFURA_PROJECT_ID;
+const projectSecret = process.env.INFURA_PROJECT_SECRET;
+const auth = 'Basic ' + Buffer.from(projectId + ':' + projectSecret).toString('base64');
+const client = ipfsHttpClient({
+  host: 'ipfs.infura.io',
+  port: 5001,
+  protocol: 'https',
+  headers: {
+    authorization: auth,
+  },
+});
 
 const Home: NextPage = () => {
   const { address: connectedAddress } = useAccount();
@@ -22,6 +37,7 @@ const Home: NextPage = () => {
     existingWorkId: "",
   });
   const [file, setFile] = useState<File | null>(null);
+  const [ipfsUrls, setIpfsUrls] = useState({ metadata: '', resource: '' });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -33,19 +49,80 @@ const Home: NextPage = () => {
     }
   };
 
-  // const uploadToIPFS = async (file: File) => {
-  //   try {
-  //     const added = await client.add(file);
-  //     return `https://ipfs.infura.io/ipfs/${added.path}`;
-  //   } catch (error) {
-  //     console.error('Error uploading file: ', error);
-  //     return null;
-  //   }
-  // };
+  const uploadToIPFS = async (content: File | Buffer): Promise<string | null> => {
+    try {
+      const added = await client.add(content);
+      return `https://ipfs.io/ipfs/${added.path}`;
+    } catch (error) {
+      console.error('Error uploading to IPFS: ', error);
+      return null;
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // const fileUrl = await uploadToIPFS(file, formData, provider);
+    if (!file) {
+      alert('Please select a file to upload');
+      return;
+    }
+
+    // Upload resource file
+    const resourceUrl = await uploadToIPFS(file);
+    if (!resourceUrl) {
+      alert('Failed to upload resource to IPFS');
+      return;
+    }
+
+    // Prepare metadata
+    const nftMetadata: NFTMetadata = {
+      authorName: formData.authorName,
+      authorWallet: formData.authorWallet || connectedAddress || '',
+      title: formData.title,
+      contributors: formData.contributors,
+      tags: formData.tags,
+      url: formData.url,
+      existingWorkId: formData.existingWorkId,
+      mediaType: file.type,
+      mediaUrl: resourceUrl,
+      createdAt: new Date().toISOString()
+    };
+
+    // Generate metadata image
+    const svgImage = generateNFTMetadataImage(nftMetadata);
+    const svgBuffer = Buffer.from(svgImage);
+    const metadataImageUrl = await uploadToIPFS(svgBuffer);
+
+    if (!metadataImageUrl) {
+      alert('Failed to upload metadata image to IPFS');
+      return;
+    }
+
+    // Prepare final metadata including the image URL
+    const finalMetadata = {
+      ...nftMetadata,
+      image: metadataImageUrl,
+      attributes: [
+        { trait_type: 'Author', value: nftMetadata.authorName },
+        { trait_type: 'Author Wallet', value: nftMetadata.authorWallet },
+        { trait_type: 'Contributors', value: nftMetadata.contributors },
+        { trait_type: 'Tags', value: nftMetadata.tags },
+        { trait_type: 'URL', value: nftMetadata.url },
+        { trait_type: 'Existing Work ID', value: nftMetadata.existingWorkId },
+        { trait_type: 'Media Type', value: nftMetadata.mediaType },
+        { trait_type: 'Media URL', value: nftMetadata.mediaUrl },
+      ],
+    };
+
+    // Upload final metadata
+    const metadataUrl = await uploadToIPFS(Buffer.from(JSON.stringify(finalMetadata)));
+    if (!metadataUrl) {
+      alert('Failed to upload metadata to IPFS');
+      return;
+    }
+
+    setIpfsUrls({ metadata: metadataUrl, resource: resourceUrl });
+    alert('Successfully uploaded to IPFS!');
+
   };
 
 
@@ -131,6 +208,13 @@ const Home: NextPage = () => {
 
           <button type="submit" className="btn btn-primary w-full">Submit</button>
         </form>
+        {ipfsUrls.metadata && ipfsUrls.resource && (
+          <div className="mt-8 p-4 bg-green-100 rounded-md">
+            <h2 className="text-xl font-bold mb-2">IPFS Upload Successful!</h2>
+            <p><strong>Metadata URL:</strong> <a href={ipfsUrls.metadata} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{ipfsUrls.metadata}</a></p>
+            <p><strong>Resource URL:</strong> <a href={ipfsUrls.resource} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{ipfsUrls.resource}</a></p>
+          </div>
+        )}
       </div>
 
       <div className="flex-grow w-full mt-16 px-8 py-12">
