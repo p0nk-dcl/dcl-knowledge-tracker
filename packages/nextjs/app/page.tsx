@@ -38,6 +38,8 @@ const Home: NextPage = () => {
   const uploadToPinata = async (content: File | string): Promise<string | null> => {
     const url = `https://api.pinata.cloud/pinning/pinFileToIPFS`;
     const formData = new FormData();
+    const PINATA_API_KEY = '5127f9990bebd3e94bf4';
+    const PINATA_API_SECRET_KEY = 'e26a52cbb2596abafcb53096b665f5aedf78ba8b72d3a0df5ab5facfb6c1bb1b';
 
     if (content instanceof File) {
       formData.append('file', content);
@@ -45,12 +47,14 @@ const Home: NextPage = () => {
       formData.append('file', new Blob([content], { type: 'application/json' }), 'metadata.json');
     }
 
+    console.log('api key: ', PINATA_API_KEY);
+    console.log('secret api key: ', PINATA_API_SECRET_KEY);
     try {
       const response = await axios.post(url, formData, {
         headers: {
           'Content-Type': `multipart/form-data`,
-          'pinata_api_key': 'YOUR_PINATA_API_KEY',
-          'pinata_secret_api_key': 'YOUR_PINATA_SECRET_API_KEY',
+          'pinata_api_key': PINATA_API_KEY,
+          'pinata_secret_api_key': PINATA_API_SECRET_KEY,
         },
       });
 
