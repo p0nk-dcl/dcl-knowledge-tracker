@@ -6,24 +6,8 @@ import type { NextPage } from "next";
 import { useAccount } from "wagmi";
 import { BugAntIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { generateNFTMetadataImage, NFTMetadata } from '../utils/dcl/generateMetadataImage';
+import axios from 'axios';
 
-// import { Address } from "~~/components/scaffold-eth";
-import { create as ipfsHttpClient } from 'ipfs-http-client';
-
-// const client = ipfsHttpClient({ url: 'https://ipfs.infura.io:5001/api/v0' });
-
-// Configure IPFS client with Infura
-const projectId = process.env.INFURA_PROJECT_ID;
-const projectSecret = process.env.INFURA_PROJECT_SECRET;
-const auth = 'Basic ' + Buffer.from(projectId + ':' + projectSecret).toString('base64');
-const client = ipfsHttpClient({
-  host: 'ipfs.infura.io',
-  port: 5001,
-  protocol: 'https',
-  headers: {
-    authorization: auth,
-  },
-});
 
 const Home: NextPage = () => {
   const { address: connectedAddress } = useAccount();
@@ -38,6 +22,7 @@ const Home: NextPage = () => {
   });
   const [file, setFile] = useState<File | null>(null);
   const [ipfsUrls, setIpfsUrls] = useState({ metadata: '', resource: '' });
+  const [smartContractAddress, setSmartContractAddress] = useState('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -49,12 +34,29 @@ const Home: NextPage = () => {
     }
   };
 
-  const uploadToIPFS = async (content: File | Buffer): Promise<string | null> => {
+
+  const uploadToPinata = async (content: File | string): Promise<string | null> => {
+    const url = `https://api.pinata.cloud/pinning/pinFileToIPFS`;
+    const formData = new FormData();
+
+    if (content instanceof File) {
+      formData.append('file', content);
+    } else {
+      formData.append('file', new Blob([content], { type: 'application/json' }), 'metadata.json');
+    }
+
     try {
-      const added = await client.add(content);
-      return `https://ipfs.io/ipfs/${added.path}`;
+      const response = await axios.post(url, formData, {
+        headers: {
+          'Content-Type': `multipart/form-data`,
+          'pinata_api_key': 'YOUR_PINATA_API_KEY',
+          'pinata_secret_api_key': 'YOUR_PINATA_SECRET_API_KEY',
+        },
+      });
+
+      return `https://gateway.pinata.cloud/ipfs/${response.data.IpfsHash}`;
     } catch (error) {
-      console.error('Error uploading to IPFS: ', error);
+      console.error('Error uploading to Pinata: ', error);
       return null;
     }
   };
@@ -67,9 +69,9 @@ const Home: NextPage = () => {
     }
 
     // Upload resource file
-    const resourceUrl = await uploadToIPFS(file);
+    const resourceUrl = await uploadToPinata(file);
     if (!resourceUrl) {
-      alert('Failed to upload resource to IPFS');
+      alert('Failed to upload resource to Pinata/IPFS');
       return;
     }
 
@@ -89,11 +91,10 @@ const Home: NextPage = () => {
 
     // Generate metadata image
     const svgImage = generateNFTMetadataImage(nftMetadata);
-    const svgBuffer = Buffer.from(svgImage);
-    const metadataImageUrl = await uploadToIPFS(svgBuffer);
+    const metadataImageUrl = await uploadToPinata(svgImage);
 
     if (!metadataImageUrl) {
-      alert('Failed to upload metadata image to IPFS');
+      alert('Failed to upload metadata image to IPFS/Pinata');
       return;
     }
 
@@ -114,14 +115,15 @@ const Home: NextPage = () => {
     };
 
     // Upload final metadata
-    const metadataUrl = await uploadToIPFS(Buffer.from(JSON.stringify(finalMetadata)));
+    const metadataUrl = await uploadToPinata(JSON.stringify(finalMetadata));
     if (!metadataUrl) {
-      alert('Failed to upload metadata to IPFS');
+      alert('Failed to upload metadata to IPFS/Pinata');
       return;
     }
 
     setIpfsUrls({ metadata: metadataUrl, resource: resourceUrl });
-    alert('Successfully uploaded to IPFS!');
+    setSmartContractAddress('0x1234567890123456789012345678901234567890'); // Replace with actual contract address
+    alert('Successfully uploaded to IPFS/Pinata!');
 
   };
 
@@ -140,8 +142,10 @@ const Home: NextPage = () => {
           </div> */}
       {/* </div> */}
 
-      <div className="flex items-center flex-col flex-grow w-full mt-16 px-4 py-12 flex justify-center">
-        <form onSubmit={handleSubmit} className="flex flex-col space-y-4 bg-white p-8 rounded-none shadow-md w-full max-w-lg">
+      {/* <div className="flex items-center flex-col flex-grow w-full mt-16 px-4 py-12 flex justify-center">
+        <form onSubmit={handleSubmit} className="flex flex-col space-y-4 bg-white p-8 rounded-none shadow-md w-full max-w-lg"> */}
+      <div className="flex flex-col items-center w-full mt-16 px-4 py-12">
+        <form onSubmit={handleSubmit} className="flex flex-col space-y-4 bg-white p-8 rounded-lg shadow-md w-full max-w-lg mb-8">
           <label className="font-semibold">Author Name:</label>
           <input
             name="authorName"
@@ -208,11 +212,31 @@ const Home: NextPage = () => {
 
           <button type="submit" className="btn btn-primary w-full">Submit</button>
         </form>
-        {ipfsUrls.metadata && ipfsUrls.resource && (
-          <div className="mt-8 p-4 bg-green-100 rounded-md">
-            <h2 className="text-xl font-bold mb-2">IPFS Upload Successful!</h2>
-            <p><strong>Metadata URL:</strong> <a href={ipfsUrls.metadata} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{ipfsUrls.metadata}</a></p>
-            <p><strong>Resource URL:</strong> <a href={ipfsUrls.resource} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{ipfsUrls.resource}</a></p>
+        {(ipfsUrls.metadata || ipfsUrls.resource || smartContractAddress) && (
+          <div className="w-full max-w-lg p-6 bg-blue-50 rounded-lg shadow-md">
+            <h2 className="text-2xl font-bold mb-4 text-blue-800">Upload Information</h2>
+            {ipfsUrls.metadata && (
+              <p className="mb-2">
+                <strong>Metadata CID:</strong>
+                <a href={ipfsUrls.metadata} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline ml-2">
+                  {ipfsUrls.metadata.split('/').pop()}
+                </a>
+              </p>
+            )}
+            {ipfsUrls.resource && (
+              <p className="mb-2">
+                <strong>Resource CID:</strong>
+                <a href={ipfsUrls.resource} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline ml-2">
+                  {ipfsUrls.resource.split('/').pop()}
+                </a>
+              </p>
+            )}
+            {smartContractAddress && (
+              <p className="mb-2">
+                <strong>Smart Contract Address:</strong>
+                <span className="ml-2">{smartContractAddress}</span>
+              </p>
+            )}
           </div>
         )}
       </div>
