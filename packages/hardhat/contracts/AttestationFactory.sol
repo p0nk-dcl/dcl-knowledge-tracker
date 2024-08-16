@@ -27,6 +27,7 @@ import "./MainRegistry.sol";
  */
 contract Attestation is ReentrancyGuard {
 	using SafeMath for uint256;
+	MainRegistry public mainRegistry;
 
 	address[] public authors;
 	address[] public contributors;
@@ -34,6 +35,7 @@ contract Attestation is ReentrancyGuard {
 	uint256[] public quotedAttestationId; //related/quoted previous work/attestationID to create links
 	string[] public tags;
 	uint256 public coPublishThreshold;
+	uint256 public verificationThreshold;
 
 	mapping(address => bool) public hasSigned;
 	uint256 public signatureCount;
@@ -58,19 +60,23 @@ contract Attestation is ReentrancyGuard {
 	event CoPublishThresholdUpdated(uint256 oldThreshold, uint256 newThreshold);
 
 	constructor(
+		address _mainRegistryAddress,
 		address[] memory _authors,
 		address[] memory _contributors,
 		string memory _ipfsHash,
 		uint256[] memory _quotedAttestationId,
 		string[] memory _tags,
-		uint256 _coPublishThreshold
+		uint256 _coPublishThreshold,
+		uint256 _verificationThreshold
 	) {
+		mainRegistry = MainRegistry(_mainRegistryAddress);
 		authors = _authors;
 		contributors = _contributors;
 		ipfsHash = _ipfsHash;
 		quotedAttestationId = _quotedAttestationId;
 		tags = _tags;
 		coPublishThreshold = _coPublishThreshold;
+		verificationThreshold = _verificationThreshold;
 		// Automatically sign the contract for the first author
 		_sign(authors[0]);
 	}
@@ -139,6 +145,13 @@ contract Attestation is ReentrancyGuard {
 		uint256 amount = unclaimedFunds[msg.sender];
 		require(amount > 0, "No funds to claim");
 
+		if (totalReceivedFunds >= verificationThreshold) {
+			require(
+				isVerifiedAuthor(msg.sender),
+				"Author(s) needs to be verified!"
+			);
+		}
+
 		unclaimedFunds[msg.sender] = 0;
 		payable(msg.sender).transfer(amount);
 
@@ -170,6 +183,14 @@ contract Attestation is ReentrancyGuard {
 			}
 		}
 		return false;
+	}
+
+	function isVerifiedAuthor(address _address) internal view returns (bool) {
+		if (!isAuthor(_address)) {
+			return false;
+		}
+		(, , , bool isVerified) = mainRegistry.users(_address);
+		return isVerified;
 	}
 
 	//Contributors here are author+co-authors+contributors
@@ -246,17 +267,58 @@ contract Attestation is ReentrancyGuard {
 }
 
 // #ATTESTATION FACTORY CONTRACT
-contract AttestationFactory {
+contract AttestationFactory is Ownable {
 	MainRegistry public mainRegistry;
+	uint256 public _verificationThreshold = 0.05 ether; // Default value set to 0.05 ETH
+	mapping(address => bool) public authorizedAddresses;
 
 	event AttestationCreated(
 		address indexed attestationAddress,
 		address[] authors,
 		address[] contributors
 	);
+	event VerificationThresholdUpdated(
+		uint256 oldThreshold,
+		uint256 newThreshold
+	);
+	event AuthorizedAddressAdded(address indexed newAuthorized);
+	event AuthorizedAddressRemoved(address indexed removedAuthorized);
 
 	constructor(address _mainRegistryAddress) {
 		mainRegistry = MainRegistry(_mainRegistryAddress);
+	}
+
+	modifier onlyAuthorized() {
+		require(authorizedAddresses[msg.sender], "Not authorized");
+		_;
+	}
+
+	function setVerificationThreshold(
+		uint256 newThreshold
+	) external onlyAuthorized {
+		uint256 oldThreshold = _verificationThreshold;
+		_verificationThreshold = newThreshold;
+		emit VerificationThresholdUpdated(oldThreshold, newThreshold);
+	}
+
+	function addAuthorizedAddress(address newAuthorized) external onlyOwner {
+		require(
+			!authorizedAddresses[newAuthorized],
+			"Address already authorized"
+		);
+		authorizedAddresses[newAuthorized] = true;
+		emit AuthorizedAddressAdded(newAuthorized);
+	}
+
+	function removeAuthorizedAddress(
+		address authorizedToRemove
+	) external onlyOwner {
+		require(
+			authorizedAddresses[authorizedToRemove],
+			"Address not authorized"
+		);
+		authorizedAddresses[authorizedToRemove] = false;
+		emit AuthorizedAddressRemoved(authorizedToRemove);
 	}
 
 	function createAttestation(
@@ -268,12 +330,14 @@ contract AttestationFactory {
 		uint256 _coPublishThreshold //min amount in native currency of donation to be added as co-publisher
 	) external returns (address) {
 		Attestation newAttestation = new Attestation(
+			address(mainRegistry),
 			_authors,
 			_contributors,
 			_ipfsHash,
 			_quotedAttestationId,
 			_tags,
-			_coPublishThreshold
+			_coPublishThreshold,
+			_verificationThreshold
 		);
 
 		address attestationAddress = address(newAttestation);

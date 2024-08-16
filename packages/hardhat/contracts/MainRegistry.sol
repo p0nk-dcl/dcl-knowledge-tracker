@@ -29,6 +29,7 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 //                 `\  }
 //                   { }
 
+//temporary:: to add possibility to verify an user by an administrator
 contract MainRegistry {
 	using Counters for Counters.Counter;
 	Counters.Counter private _attestationIds; //counter for generating attestationIds
@@ -37,6 +38,7 @@ contract MainRegistry {
 		address userAddress;
 		string userName;
 		uint256[] attestationIds;
+		bool isVerified;
 	}
 
 	address public owner;
@@ -70,8 +72,9 @@ contract MainRegistry {
 
 		users[_owner] = UserProfile({
 			userAddress: _owner,
-			userName: "test jojo",
-			attestationIds: new uint256[](0)
+			userName: "p0nk",
+			attestationIds: new uint256[](0),
+			isVerified: true
 		}); //Only for testing purpose
 	}
 
@@ -87,7 +90,8 @@ contract MainRegistry {
 		users[_userAddress] = UserProfile({
 			userAddress: _userAddress,
 			userName: _userName,
-			attestationIds: new uint256[](0)
+			attestationIds: new uint256[](0),
+			isVerified: false
 		});
 
 		emit UserRegistered(_userAddress, _userName);
@@ -101,6 +105,12 @@ contract MainRegistry {
 		authorizedAddresses[_address] = false;
 	}
 
+	//only team can "verify" an user
+	function verifyUser(address _address) external onlyAuthorized {
+		users[_address].isVerified = true;
+	}
+
+	//Only attestationFactory can add attestation)
 	function addAttestation(
 		address _attestationAddress,
 		address[] memory _participants
@@ -109,7 +119,7 @@ contract MainRegistry {
 		uint256 _newAttestationId = _attestationIds.current();
 		attestationAddresses[_newAttestationId] = _attestationAddress; //link attestationId <-> SmartContract Addr
 
-		//IS THERE A P¨BLM HERE ? BECAUSE users[] get updated but we push in user
+		//IS THERE A PBLM HERE ? BECAUSE users[] get updated but we push in user
 		for (uint i = 0; i < _participants.length; i++) {
 			UserProfile storage user = users[_participants[i]];
 			if (user.userAddress == address(0)) {
