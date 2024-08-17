@@ -141,18 +141,6 @@ contract MainRegistry {
 
 		for (uint i = 0; i < _participants.length; i++) {
 			address wallet = _participants[i];
-			if (walletToUserId[wallet] == 0) {
-				// If the wallet is not associated with any user, create a new user
-				_userIds.increment();
-				uint256 newUserId = _userIds.current();
-				users[newUserId] = UserProfile({
-					userId: newUserId,
-					userName: "",
-					wallets: new address[](0)
-				});
-				_addWalletToUser(newUserId, wallet);
-			}
-
 			WalletAddress storage walletAddr = wallets[wallet];
 			require(
 				walletAddr.attestationIds.length < MAX_ATTESTATIONS_PER_WALLET,
@@ -178,27 +166,27 @@ contract MainRegistry {
 		return _attestationIds.current();
 	}
 
-    function getWalletAttestations(address _wallet, uint256 _offset, uint256 _limit) 
-        public 
-        view 
-        returns (uint256[] memory attestationIds) 
-    {
-        WalletAddress storage walletAddr = wallets[_wallet];
-        uint256[] storage allAttestations = walletAddr.attestationIds;
-        uint256 total = allAttestations.length;
+	function getWalletAttestations(
+		address _wallet,
+		uint256 _offset,
+		uint256 _limit
+	) public view returns (uint256[] memory attestationIds) {
+		WalletAddress storage walletAddr = wallets[_wallet];
+		uint256[] storage allAttestations = walletAddr.attestationIds;
+		uint256 total = allAttestations.length;
 
-        require(_offset < total, "Offset out of bounds");
+		require(_offset < total, "Offset out of bounds");
 
-        uint256 end = _offset + _limit > total ? total : _offset + _limit;
-        uint256 length = end - _offset;
+		uint256 end = _offset + _limit > total ? total : _offset + _limit;
+		uint256 length = end - _offset;
 
-        attestationIds = new uint256[](length);
-        for (uint256 i = 0; i < length; i++) {
-            attestationIds[i] = allAttestations[_offset + i];
-        }
+		attestationIds = new uint256[](length);
+		for (uint256 i = 0; i < length; i++) {
+			attestationIds[i] = allAttestations[_offset + i];
+		}
 
-        return attestationIds;
-    }
+		return attestationIds;
+	}
 
 	function getWalletAttestationCount(
 		address _wallet
