@@ -1,56 +1,101 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
-// import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers";
 import { MainRegistry } from "../typechain-types";
 
 describe("MainRegistry", function () {
     let mainRegistry: MainRegistry;
-    let owner: any;
-    let addr1: any;
-    let addr2: any;
+    let owner: SignerWithAddress;
+    let user1: SignerWithAddress;
+    let user2: SignerWithAddress;
+    let user3: SignerWithAddress;
 
-    before(async function () {
-        // Get the Signers and Contract Factories
-        [owner, addr1, addr2] = await ethers.getSigners();
-        console.log('Signer MR1 address: ', owner.address);
-        console.log('Signer MR2 address: ', addr1.address);
-        console.log('Signer MR3 address: ', addr2.address);
-
+    beforeEach(async function () {
+        [owner, user1, user2, user3] = await ethers.getSigners();
         const MainRegistryFactory = await ethers.getContractFactory("MainRegistry");
-
-
-        // Deploy the MainRegistry contract
-        mainRegistry = (await MainRegistryFactory.deploy(owner.address)) as MainRegistry;
+        mainRegistry = await MainRegistryFactory.deploy(await owner.getAddress());
         await mainRegistry.waitForDeployment();
     });
 
+    it("should register a new user", async function () {
+        const tx = await mainRegistry.addAttestation(await user3.getAddress(), [await user1.getAddress()]);
+        await tx.wait();
 
-    it("Should update the user name successfully", async function () {
-        //console log the name before change and make sure its equal test jojo
-        const tx = await mainRegistry.updateUserName("AliceUpdated");
-        await expect(tx).to.emit(mainRegistry, "UserNameUpdated").withArgs(owner.address, "AliceUpdated");
+        const userProfile = await mainRegistry.users(await user1.getAddress());
+        expect(userProfile.userAddress).to.equal(await user1.getAddress());
+        expect(userProfile.userName).to.equal("");
+        expect(userProfile.isVerified).to.be.false;
 
-        const userProfile = await mainRegistry.users(owner.address);
-        expect(userProfile.userName).to.equal("AliceUpdated");
+        await expect(tx)
+            .to.emit(mainRegistry, 'UserRegistered')
+            .withArgs(await user1.getAddress(), "");
     });
 
-    it("Should create an attestation and link it to a user", async function () {
-        const tx = await mainRegistry.addAttestation(addr1.address, [owner.address, addr2.address]);
-        const attestationId = await mainRegistry.getUserAttestations(owner.address); // Getting the latest attestation ID
-        console.log('attestationId created: ', attestationId);
+    it("should update user name", async function () {
+        await mainRegistry.addAttestation(await user3.getAddress(), [await user1.getAddress()]);
+        const newName = "Alice";
+        const tx = await mainRegistry.connect(user1).updateUserName(newName);
+        await tx.wait();
 
-        await expect(tx).to.emit(mainRegistry, "AttestationCreated").withArgs(attestationId[0], addr1.address);
+        const userProfile = await mainRegistry.users(await user1.getAddress());
+        expect(userProfile.userName).to.equal(newName);
 
-        // Check that the attestation ID is linked to the correct address
-        const attestationAddress = await mainRegistry.attestationAddresses(attestationId[0]);
-        expect(attestationAddress).to.equal(addr1.address);
-
-        // Check that the user's profile includes this attestation ID
-        const userProfile = await mainRegistry.users(owner.address);
-        console.log("user profile name: ", userProfile.userName);
-        console.log("user profile: ", userProfile.);
-        expect(userProfile.attestationIds.length).to.equal(1); //to understand WHY ITS BUGGY :/ 
-        expect(userProfile.attestationIds[0]).to.equal(attestationId);
+        await expect(tx)
+            .to.emit(mainRegistry, 'UserNameUpdated')
+            .withArgs(await user1.getAddress(), newName);
     });
 
+    it("should verify a user", async function () {
+        await mainRegistry.addAttestation(await user3.getAddress(), [await user1.getAddress()]);
+        await mainRegistry.verifyUser(await user1.getAddress());
+
+        const userProfile = await mainRegistry.users(await user1.getAddress());
+        expect(userProfile.isVerified).to.be.true;
+    });
+
+    it("should add an attestation", async function () {
+        const attestationAddress = await user3.getAddress();
+        const tx = await mainRegistry.addAttestation(attestationAddress, [await user1.getAddress(), await user2.getAddress()]);
+        await tx.wait();
+
+        const user1Profile = await mainRegistry.users(await user1.getAddress());
+        const user2Profile = await mainRegistry.users(await user2.getAddress());
+
+        // Log the entire user profile to see what we're getting
+        console.log("User1 Profile:", user1Profile);
+        console.log("User2 Profile:", user2Profile);
+
+        // Check that user profiles are created correctly
+        expect(user1Profile[0]).to.equal(await user1.getAddress());
+        expect(user1Profile[1]).to.equal("");
+        expect(user1Profile[2]).to.be.false;
+
+        expect(user2Profile[0]).to.equal(await user2.getAddress());
+        expect(user2Profile[1]).to.equal("");
+        expect(user2Profile[2]).to.be.false;
+
+
+        // Verify that we can retrieve the attestation IDs for each user
+        const user1Attestations = await mainRegistry.getUserAttestations(await user1.getAddress());
+        const user2Attestations = await mainRegistry.getUserAttestations(await user2.getAddress());
+
+        console.log("user1Attestations :", user1Attestations);
+        console.log("user2Attestations :", user2Attestations);
+
+        expect(user1Attestations).to.deep.equal([1n]);
+        expect(user2Attestations).to.deep.equal([1n]);
+
+
+        await expect(tx)
+            .to.emit(mainRegistry, 'AttestationCreated')
+            .withArgs(1, attestationAddress);
+
+        await expect(tx)
+            .to.emit(mainRegistry, 'AttestationAddedToUser')
+            .withArgs(await user1.getAddress(), 1);
+
+        await expect(tx)
+            .to.emit(mainRegistry, 'AttestationAddedToUser')
+            .withArgs(await user2.getAddress(), 1);
+    });
 });
