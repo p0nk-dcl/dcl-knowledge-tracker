@@ -279,6 +279,7 @@ contract AttestationFactory is Ownable {
 
 	constructor(address _mainRegistryAddress) {
 		mainRegistry = MainRegistry(_mainRegistryAddress);
+        authorizedAddresses[msg.sender] = true;
 	}
 
 	modifier onlyAuthorized() {

@@ -10,12 +10,16 @@ describe("MainRegistry", function () {
     let user1: SignerWithAddress;
     let user2: SignerWithAddress;
     let user3: SignerWithAddress;
+    let authorizedAddress: SignerWithAddress;
 
     beforeEach(async function () {
-        [owner, user1, user2, user3] = await getRandomAccounts(4);
+        [owner, user1, user2, user3, authorizedAddress] = await getRandomAccounts(5);
         const MainRegistryFactory = await ethers.getContractFactory("MainRegistry");
         mainRegistry = await MainRegistryFactory.deploy(await owner.getAddress());
         await mainRegistry.waitForDeployment();
+
+        // Add an authorized address
+        await mainRegistry.connect(owner).addAuthorizedAddress(await authorizedAddress.getAddress());
     });
 
     it("should register a new user", async function () {
@@ -27,7 +31,8 @@ describe("MainRegistry", function () {
 
         const userProfile = await mainRegistry.users(userId);
         expect(userProfile.userName).to.equal("User1");
-        expect(userProfile[2]).to.deep.equal([await user1.getAddress()]);
+        const userWallets = await mainRegistry.getUserWallets(userId);
+        expect(userWallets).to.deep.equal([await user1.getAddress()]);
 
         await expect(tx)
             .to.emit(mainRegistry, 'UserRegistered')
@@ -51,9 +56,14 @@ describe("MainRegistry", function () {
 
     it("should verify a wallet", async function () {
         await mainRegistry.connect(user1).registerUser("User1");
-        await mainRegistry.connect(owner).verifyWallet(await user1.getAddress());
+        const tx = await mainRegistry.connect(authorizedAddress).verifyWallet(await user1.getAddress());
+        await tx.wait();
 
         expect(await mainRegistry.isWalletVerified(await user1.getAddress())).to.be.true;
+
+        await expect(tx)
+            .to.emit(mainRegistry, 'WalletVerified')
+            .withArgs(await user1.getAddress());
     });
 
     it("should add an attestation", async function () {
@@ -61,11 +71,8 @@ describe("MainRegistry", function () {
         await mainRegistry.connect(user1).registerUser("User1");
         await mainRegistry.connect(user2).registerUser("User2");
 
-        const tx = await mainRegistry.addAttestation(attestationAddress, [await user1.getAddress(), await user2.getAddress()]);
+        const tx = await mainRegistry.connect(authorizedAddress).addAttestation(attestationAddress, [await user1.getAddress(), await user2.getAddress()]);
         await tx.wait();
-
-        const user1Id = await mainRegistry.walletToUserId(await user1.getAddress());
-        const user2Id = await mainRegistry.walletToUserId(await user2.getAddress());
 
         const user1AttestationCount = await mainRegistry.getWalletAttestationCount(await user1.getAddress());
         const user2AttestationCount = await mainRegistry.getWalletAttestationCount(await user2.getAddress());
@@ -97,13 +104,18 @@ describe("MainRegistry", function () {
         const userId = await mainRegistry.walletToUserId(await user1.getAddress());
 
         const newWallet = user2;
-        await mainRegistry.connect(user1).addWalletToUser(await newWallet.getAddress());
+        const tx = await mainRegistry.connect(user1).addWalletToUser(await newWallet.getAddress());
+        await tx.wait();
 
         const userWallets = await mainRegistry.getUserWallets(userId);
         expect(userWallets).to.deep.equal([await user1.getAddress(), await newWallet.getAddress()]);
 
         const newWalletUserId = await mainRegistry.walletToUserId(await newWallet.getAddress());
         expect(newWalletUserId).to.equal(userId);
+
+        await expect(tx)
+            .to.emit(mainRegistry, 'WalletAdded')
+            .withArgs(userId, await newWallet.getAddress());
     });
 
     it("should handle attestations for multiple wallets of the same user", async function () {
@@ -113,8 +125,8 @@ describe("MainRegistry", function () {
         const attestationAddress1 = await user3.getAddress();
         const attestationAddress2 = await owner.getAddress();
 
-        await mainRegistry.addAttestation(attestationAddress1, [await user1.getAddress()]);
-        await mainRegistry.addAttestation(attestationAddress2, [await user2.getAddress()]);
+        await mainRegistry.connect(authorizedAddress).addAttestation(attestationAddress1, [await user1.getAddress()]);
+        await mainRegistry.connect(authorizedAddress).addAttestation(attestationAddress2, [await user2.getAddress()]);
 
         const userId = await mainRegistry.walletToUserId(await user1.getAddress());
 
@@ -123,5 +135,18 @@ describe("MainRegistry", function () {
 
         expect(wallet1Attestations).to.deep.equal([1n]);
         expect(wallet2Attestations).to.deep.equal([2n]);
+    });
+
+    it("should not allow unauthorized addresses to verify wallets", async function () {
+        await mainRegistry.connect(user1).registerUser("User1");
+        await expect(mainRegistry.connect(user2).verifyWallet(await user1.getAddress()))
+            .to.be.revertedWith("Not authorized");
+    });
+
+    it("should not allow unauthorized addresses to add attestations", async function () {
+        const attestationAddress = await user3.getAddress();
+        await mainRegistry.connect(user1).registerUser("User1");
+        await expect(mainRegistry.connect(user2).addAttestation(attestationAddress, [await user1.getAddress()]))
+            .to.be.revertedWith("Not authorized");
     });
 });
