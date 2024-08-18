@@ -171,6 +171,10 @@ contract MainRegistry {
 		uint256 _offset,
 		uint256 _limit
 	) public view returns (uint256[] memory attestationIds) {
+		require(
+			walletToUserId[_wallet] != 0,
+			"Wallet not associated with any user"
+		);
 		WalletAddress storage walletAddr = wallets[_wallet];
 		uint256[] storage allAttestations = walletAddr.attestationIds;
 		uint256 total = allAttestations.length;

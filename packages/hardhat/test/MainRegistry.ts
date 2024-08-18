@@ -2,6 +2,7 @@ import { expect } from "chai";
 import { ethers } from "hardhat";
 import { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers";
 import { MainRegistry } from "../typechain-types";
+import { getRandomAccounts } from "./helpers/account";
 
 describe("MainRegistry", function () {
     let mainRegistry: MainRegistry;
@@ -11,7 +12,7 @@ describe("MainRegistry", function () {
     let user3: SignerWithAddress;
 
     beforeEach(async function () {
-        [owner, user1, user2, user3] = await ethers.getSigners();
+        [owner, user1, user2, user3] = await getRandomAccounts(4);
         const MainRegistryFactory = await ethers.getContractFactory("MainRegistry");
         mainRegistry = await MainRegistryFactory.deploy(await owner.getAddress());
         await mainRegistry.waitForDeployment();
@@ -50,7 +51,7 @@ describe("MainRegistry", function () {
 
     it("should verify a wallet", async function () {
         await mainRegistry.connect(user1).registerUser("User1");
-        await mainRegistry.verifyWallet(await user1.getAddress());
+        await mainRegistry.connect(owner).verifyWallet(await user1.getAddress());
 
         expect(await mainRegistry.isWalletVerified(await user1.getAddress())).to.be.true;
     });
