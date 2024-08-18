@@ -7,7 +7,8 @@ import { useAccount } from "wagmi";
 import { BugAntIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { generateNFTMetadataImage, NFTMetadata } from '../utils/dcl/generateMetadataImage';
 import axios from 'axios';
-
+import { ethers } from 'ethers';
+import { createAttestation } from '../utils/dcl/contractInteraction';
 
 const Home: NextPage = () => {
   const { address: connectedAddress } = useAccount();
@@ -19,6 +20,7 @@ const Home: NextPage = () => {
     tags: "",
     url: "",
     existingWorkId: "",
+    coPublishThreshold: "" //can be set to 0.1 (eth) as default
   });
   const [file, setFile] = useState<File | null>(null);
   const [ipfsUrls, setIpfsUrls] = useState({ metadata: '', resource: '' });
@@ -86,6 +88,7 @@ const Home: NextPage = () => {
       title: formData.title,
       contributors: formData.contributors,
       tags: formData.tags,
+      copublisherFees: formData.coPublishThreshold,
       url: formData.url,
       existingWorkId: formData.existingWorkId,
       mediaType: file.type,
@@ -111,6 +114,7 @@ const Home: NextPage = () => {
         { trait_type: 'Author Wallet', value: nftMetadata.authorWallet },
         { trait_type: 'Contributors', value: nftMetadata.contributors },
         { trait_type: 'Tags', value: nftMetadata.tags },
+        { trait_type: 'CoPublisherFees', value: nftMetadata.copublisherFees },
         { trait_type: 'URL', value: nftMetadata.url },
         { trait_type: 'Existing Work ID', value: nftMetadata.existingWorkId },
         { trait_type: 'Media Type', value: nftMetadata.mediaType },
@@ -126,8 +130,37 @@ const Home: NextPage = () => {
     }
 
     setIpfsUrls({ metadata: metadataUrl, resource: resourceUrl });
-    setSmartContractAddress('0x1234567890123456789012345678901234567890'); // Replace with actual contract address
     alert('Successfully uploaded to IPFS/Pinata!');
+
+    // Prepare data for smart contract interaction
+    const authors = formData.authorWallet ? formData.authorWallet.split(',').map(t => t.trim()) : [];//[formData.authorWallet || connectedAddress || ''];
+    const contributors = formData.contributors
+      ? formData.contributors.split(',').map(c => c.split(':')[1].trim())
+      : [];
+    const ipfsHash = metadataUrl.split('/').pop() || '';
+    const quotedAttestationId = formData.existingWorkId
+      ? [formData.existingWorkId]
+      : [];
+    const tags = formData.tags ? formData.tags.split(',').map(t => t.trim()) : [];
+
+    // Get the Ethereum provider
+    const provider = new ethers.BrowserProvider(window.ethereum);
+
+    // Create the attestation using AttestationFactory
+    const newAttestationAddress = await createAttestation(
+      provider,
+      authors,
+      contributors,
+      ipfsHash,
+      quotedAttestationId,
+      tags,
+      formData.coPublishThreshold
+    );
+
+    setSmartContractAddress(newAttestationAddress);
+
+
+    alert('Attestation contract successfully deployed onchain :)');
 
   };
 
@@ -186,6 +219,16 @@ const Home: NextPage = () => {
           <input
             name="tags"
             placeholder="e.g., 'l2', 'blockchain for good', 'refi'"
+            onChange={handleChange}
+            className="input input-bordered w-full"
+          />
+          <label className="font-semibold">Co-Publish Amount Fees:</label>
+          <input
+            name="coPublishThreshold"
+            type="number"
+            step="0.01"
+            placeholder="0.1"
+            value={formData.coPublishThreshold}
             onChange={handleChange}
             className="input input-bordered w-full"
           />
