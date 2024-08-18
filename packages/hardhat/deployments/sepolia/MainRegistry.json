@@ -1,0 +1,738 @@
+{
+  "address": "0xa8f3Ec9865196a96d4C157A7965fAfF7ed46Ee97",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_owner",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "wallet",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "attestationId",
+          "type": "uint256"
+        }
+      ],
+      "name": "AttestationAddedToWallet",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "attestationId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "attestationAddress",
+          "type": "address"
+        }
+      ],
+      "name": "AttestationCreated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "userId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "newUserName",
+          "type": "string"
+        }
+      ],
+      "name": "UserNameUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "userId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "userName",
+          "type": "string"
+        }
+      ],
+      "name": "UserRegistered",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "userId",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "wallet",
+          "type": "address"
+        }
+      ],
+      "name": "WalletAdded",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "wallet",
+          "type": "address"
+        }
+      ],
+      "name": "WalletVerified",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "MAX_ATTESTATIONS_PER_WALLET",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_attestationAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "address[]",
+          "name": "_participants",
+          "type": "address[]"
+        }
+      ],
+      "name": "addAttestation",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_address",
+          "type": "address"
+        }
+      ],
+      "name": "addAuthorizedAddress",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_newWallet",
+          "type": "address"
+        }
+      ],
+      "name": "addWalletToUser",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "attestationAddresses",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "authorizedAddresses",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getAttestationCount",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_wallet",
+          "type": "address"
+        }
+      ],
+      "name": "getUserName",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_userId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getUserWallets",
+      "outputs": [
+        {
+          "internalType": "address[]",
+          "name": "",
+          "type": "address[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_wallet",
+          "type": "address"
+        }
+      ],
+      "name": "getWalletAttestationCount",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_wallet",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_offset",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_limit",
+          "type": "uint256"
+        }
+      ],
+      "name": "getWalletAttestations",
+      "outputs": [
+        {
+          "internalType": "uint256[]",
+          "name": "attestationIds",
+          "type": "uint256[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_wallet",
+          "type": "address"
+        }
+      ],
+      "name": "isWalletVerified",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_userName",
+          "type": "string"
+        }
+      ],
+      "name": "registerUser",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_address",
+          "type": "address"
+        }
+      ],
+      "name": "removeAuthorizedAddress",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_newUserName",
+          "type": "string"
+        }
+      ],
+      "name": "updateUserName",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "users",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "userId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "string",
+          "name": "userName",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_wallet",
+          "type": "address"
+        }
+      ],
+      "name": "verifyWallet",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "walletToUserId",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "wallets",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "userAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "isVerified",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0x82eb63b58e85940dc50e17a63cbd0412a36ec25bd05077b92f0e91207a8dbac7",
+  "receipt": {
+    "to": null,
+    "from": "0x47cf32288Afffd890fa1cb3F6ce8faEB9C9F86d9",
+    "contractAddress": "0xa8f3Ec9865196a96d4C157A7965fAfF7ed46Ee97",
+    "transactionIndex": 104,
+    "gasUsed": "1518089",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000200000000000000000040000000000000000000000000000000000000000000000040000000000000000000000000000010000008000000000000000000000000000000000002000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000004040000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0x14df3bb6ac55710595bfc466c1aa881dfdd50dfe1db24db02de8ee28b1411b59",
+    "transactionHash": "0x82eb63b58e85940dc50e17a63cbd0412a36ec25bd05077b92f0e91207a8dbac7",
+    "logs": [
+      {
+        "transactionIndex": 104,
+        "blockNumber": 6526587,
+        "transactionHash": "0x82eb63b58e85940dc50e17a63cbd0412a36ec25bd05077b92f0e91207a8dbac7",
+        "address": "0xa8f3Ec9865196a96d4C157A7965fAfF7ed46Ee97",
+        "topics": [
+          "0xf0306f4e8668d23ebcc691f3a47412cb3e3bc7a86b5be28204cf62853914ff15",
+          "0x0000000000000000000000000000000000000000000000000000000000000001",
+          "0x00000000000000000000000047cf32288afffd890fa1cb3f6ce8faeb9c9f86d9"
+        ],
+        "data": "0x",
+        "logIndex": 1195,
+        "blockHash": "0x14df3bb6ac55710595bfc466c1aa881dfdd50dfe1db24db02de8ee28b1411b59"
+      }
+    ],
+    "blockNumber": 6526587,
+    "cumulativeGasUsed": "25362298",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [
+    "0x47cf32288Afffd890fa1cb3F6ce8faEB9C9F86d9"
+  ],
+  "numDeployments": 1,
+  "solcInputHash": "980f727d7032392788f471ccb8009e14",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_owner\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"wallet\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"attestationId\",\"type\":\"uint256\"}],\"name\":\"AttestationAddedToWallet\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"attestationId\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"attestationAddress\",\"type\":\"address\"}],\"name\":\"AttestationCreated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"userId\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"newUserName\",\"type\":\"string\"}],\"name\":\"UserNameUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"userId\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"userName\",\"type\":\"string\"}],\"name\":\"UserRegistered\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"userId\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"wallet\",\"type\":\"address\"}],\"name\":\"WalletAdded\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"wallet\",\"type\":\"address\"}],\"name\":\"WalletVerified\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"MAX_ATTESTATIONS_PER_WALLET\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_attestationAddress\",\"type\":\"address\"},{\"internalType\":\"address[]\",\"name\":\"_participants\",\"type\":\"address[]\"}],\"name\":\"addAttestation\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_address\",\"type\":\"address\"}],\"name\":\"addAuthorizedAddress\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_newWallet\",\"type\":\"address\"}],\"name\":\"addWalletToUser\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"attestationAddresses\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"authorizedAddresses\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getAttestationCount\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_wallet\",\"type\":\"address\"}],\"name\":\"getUserName\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_userId\",\"type\":\"uint256\"}],\"name\":\"getUserWallets\",\"outputs\":[{\"internalType\":\"address[]\",\"name\":\"\",\"type\":\"address[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_wallet\",\"type\":\"address\"}],\"name\":\"getWalletAttestationCount\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_wallet\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_offset\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_limit\",\"type\":\"uint256\"}],\"name\":\"getWalletAttestations\",\"outputs\":[{\"internalType\":\"uint256[]\",\"name\":\"attestationIds\",\"type\":\"uint256[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_wallet\",\"type\":\"address\"}],\"name\":\"isWalletVerified\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"_userName\",\"type\":\"string\"}],\"name\":\"registerUser\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_address\",\"type\":\"address\"}],\"name\":\"removeAuthorizedAddress\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"_newUserName\",\"type\":\"string\"}],\"name\":\"updateUserName\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"users\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"userId\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"userName\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_wallet\",\"type\":\"address\"}],\"name\":\"verifyWallet\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"walletToUserId\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"wallets\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"userAddress\",\"type\":\"address\"},{\"internalType\":\"bool\",\"name\":\"isVerified\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/MainRegistry.sol\":\"MainRegistry\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"@openzeppelin/contracts/utils/Counters.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts v4.4.1 (utils/Counters.sol)\\n\\npragma solidity ^0.8.0;\\n\\n/**\\n * @title Counters\\n * @author Matt Condon (@shrugs)\\n * @dev Provides counters that can only be incremented, decremented or reset. This can be used e.g. to track the number\\n * of elements in a mapping, issuing ERC721 ids, or counting request ids.\\n *\\n * Include with `using Counters for Counters.Counter;`\\n */\\nlibrary Counters {\\n    struct Counter {\\n        // This variable should never be directly accessed by users of the library: interactions must be restricted to\\n        // the library's function. As of Solidity v0.5.2, this cannot be enforced, though there is a proposal to add\\n        // this feature: see https://github.com/ethereum/solidity/issues/4637\\n        uint256 _value; // default: 0\\n    }\\n\\n    function current(Counter storage counter) internal view returns (uint256) {\\n        return counter._value;\\n    }\\n\\n    function increment(Counter storage counter) internal {\\n        unchecked {\\n            counter._value += 1;\\n        }\\n    }\\n\\n    function decrement(Counter storage counter) internal {\\n        uint256 value = counter._value;\\n        require(value > 0, \\\"Counter: decrement overflow\\\");\\n        unchecked {\\n            counter._value = value - 1;\\n        }\\n    }\\n\\n    function reset(Counter storage counter) internal {\\n        counter._value = 0;\\n    }\\n}\\n\",\"keccak256\":\"0xf0018c2440fbe238dd3a8732fa8e17a0f9dce84d31451dc8a32f6d62b349c9f1\",\"license\":\"MIT\"},\"contracts/MainRegistry.sol\":{\"content\":\"//SPDX-License-Identifier: MIT\\r\\n\\r\\npragma solidity ^0.8.0;\\r\\n\\r\\nimport \\\"@openzeppelin/contracts/utils/Counters.sol\\\";\\r\\n\\r\\ncontract MainRegistry {\\r\\n\\tusing Counters for Counters.Counter;\\r\\n\\tCounters.Counter private _attestationIds;\\r\\n\\tCounters.Counter private _userIds;\\r\\n\\r\\n\\tstruct WalletAddress {\\r\\n\\t\\taddress userAddress;\\r\\n\\t\\tuint256[] attestationIds;\\r\\n\\t\\tbool isVerified;\\r\\n\\t}\\r\\n\\r\\n\\tstruct UserProfile {\\r\\n\\t\\tuint256 userId;\\r\\n\\t\\tstring userName;\\r\\n\\t\\taddress[] wallets;\\r\\n\\t}\\r\\n\\r\\n\\taddress public owner;\\r\\n\\tmapping(address => bool) public authorizedAddresses;\\r\\n\\tmapping(uint256 => UserProfile) public users; // userId -> UserProfile\\r\\n\\tmapping(address => uint256) public walletToUserId; // wallet -> userId\\r\\n\\tmapping(address => WalletAddress) public wallets; // wallet -> WalletAddress\\r\\n\\tmapping(uint256 => address) public attestationAddresses;\\r\\n\\r\\n\\tuint256 public constant MAX_ATTESTATIONS_PER_WALLET = 100; // Example limit\\r\\n\\r\\n\\tmodifier onlyOwner() {\\r\\n\\t\\trequire(msg.sender == owner, \\\"Only the owner can perform this action\\\");\\r\\n\\t\\t_;\\r\\n\\t}\\r\\n\\r\\n\\tmodifier onlyAuthorized() {\\r\\n\\t\\trequire(authorizedAddresses[msg.sender], \\\"Not authorized\\\");\\r\\n\\t\\t_;\\r\\n\\t}\\r\\n\\r\\n\\tevent UserRegistered(uint256 indexed userId, string userName);\\r\\n\\tevent WalletAdded(uint256 indexed userId, address indexed wallet);\\r\\n\\tevent AttestationCreated(\\r\\n\\t\\tuint256 indexed attestationId,\\r\\n\\t\\taddress attestationAddress\\r\\n\\t);\\r\\n\\tevent AttestationAddedToWallet(\\r\\n\\t\\taddress indexed wallet,\\r\\n\\t\\tuint256 attestationId\\r\\n\\t);\\r\\n\\tevent UserNameUpdated(uint256 indexed userId, string newUserName);\\r\\n\\tevent WalletVerified(address indexed wallet);\\r\\n\\r\\n\\tconstructor(address _owner) {\\r\\n\\t\\towner = _owner;\\r\\n\\t\\tauthorizedAddresses[owner] = true;\\r\\n\\r\\n\\t\\t_userIds.increment();\\r\\n\\t\\tuint256 newUserId = _userIds.current();\\r\\n\\t\\tusers[newUserId] = UserProfile({\\r\\n\\t\\t\\tuserId: newUserId,\\r\\n\\t\\t\\tuserName: \\\"p0nk\\\",\\r\\n\\t\\t\\twallets: new address[](0)\\r\\n\\t\\t});\\r\\n\\t\\t_addWalletToUser(newUserId, _owner);\\r\\n\\t}\\r\\n\\r\\n\\tfunction _addWalletToUser(uint256 _userId, address _wallet) private {\\r\\n\\t\\trequire(\\r\\n\\t\\t\\twalletToUserId[_wallet] == 0,\\r\\n\\t\\t\\t\\\"Wallet already associated with a user\\\"\\r\\n\\t\\t);\\r\\n\\r\\n\\t\\tusers[_userId].wallets.push(_wallet);\\r\\n\\t\\twalletToUserId[_wallet] = _userId;\\r\\n\\t\\twallets[_wallet] = WalletAddress({\\r\\n\\t\\t\\tuserAddress: _wallet,\\r\\n\\t\\t\\tattestationIds: new uint256[](0),\\r\\n\\t\\t\\tisVerified: false\\r\\n\\t\\t});\\r\\n\\r\\n\\t\\temit WalletAdded(_userId, _wallet);\\r\\n\\t}\\r\\n\\r\\n\\tfunction registerUser(\\r\\n\\t\\tstring memory _userName\\r\\n\\t) external onlyAuthorized returns (uint256) {\\r\\n\\t\\tif (walletToUserId[msg.sender] != 0) {\\r\\n\\t\\t\\t// User already registered, return existing userId\\r\\n\\t\\t\\treturn walletToUserId[msg.sender];\\r\\n\\t\\t}\\r\\n\\r\\n\\t\\t_userIds.increment();\\r\\n\\t\\tuint256 newUserId = _userIds.current();\\r\\n\\t\\tusers[newUserId] = UserProfile({\\r\\n\\t\\t\\tuserId: newUserId,\\r\\n\\t\\t\\tuserName: _userName,\\r\\n\\t\\t\\twallets: new address[](0)\\r\\n\\t\\t});\\r\\n\\r\\n\\t\\t_addWalletToUser(newUserId, msg.sender);\\r\\n\\r\\n\\t\\temit UserRegistered(newUserId, _userName);\\r\\n\\t\\treturn newUserId;\\r\\n\\t}\\r\\n\\r\\n\\tfunction addWalletToUser(address _newWallet) external onlyAuthorized {\\r\\n\\t\\tuint256 userId = walletToUserId[msg.sender];\\r\\n\\t\\trequire(userId != 0, \\\"User not registered\\\");\\r\\n\\t\\t_addWalletToUser(userId, _newWallet);\\r\\n\\t}\\r\\n\\r\\n\\tfunction addAuthorizedAddress(address _address) external onlyOwner {\\r\\n\\t\\tauthorizedAddresses[_address] = true;\\r\\n\\t}\\r\\n\\r\\n\\tfunction removeAuthorizedAddress(address _address) external onlyOwner {\\r\\n\\t\\tauthorizedAddresses[_address] = false;\\r\\n\\t}\\r\\n\\r\\n\\tfunction verifyWallet(address _wallet) external onlyAuthorized {\\r\\n\\t\\trequire(\\r\\n\\t\\t\\twalletToUserId[_wallet] != 0,\\r\\n\\t\\t\\t\\\"Wallet not associated with any user\\\"\\r\\n\\t\\t);\\r\\n\\t\\twallets[_wallet].isVerified = true;\\r\\n\\t\\temit WalletVerified(_wallet);\\r\\n\\t}\\r\\n\\r\\n\\tfunction isWalletVerified(address _wallet) public view returns (bool) {\\r\\n\\t\\treturn wallets[_wallet].isVerified;\\r\\n\\t}\\r\\n\\r\\n\\tfunction addAttestation(\\r\\n\\t\\taddress _attestationAddress,\\r\\n\\t\\taddress[] memory _participants\\r\\n\\t) external onlyAuthorized {\\r\\n\\t\\t_attestationIds.increment();\\r\\n\\t\\tuint256 _newAttestationId = _attestationIds.current();\\r\\n\\t\\tattestationAddresses[_newAttestationId] = _attestationAddress;\\r\\n\\r\\n\\t\\tfor (uint i = 0; i < _participants.length; i++) {\\r\\n\\t\\t\\taddress wallet = _participants[i];\\r\\n\\t\\t\\tWalletAddress storage walletAddr = wallets[wallet];\\r\\n\\t\\t\\trequire(\\r\\n\\t\\t\\t\\twalletAddr.attestationIds.length < MAX_ATTESTATIONS_PER_WALLET,\\r\\n\\t\\t\\t\\t\\\"Max attestations reached for this wallet\\\"\\r\\n\\t\\t\\t);\\r\\n\\t\\t\\twalletAddr.attestationIds.push(_newAttestationId);\\r\\n\\t\\t\\temit AttestationAddedToWallet(wallet, _newAttestationId);\\r\\n\\t\\t}\\r\\n\\r\\n\\t\\temit AttestationCreated(_newAttestationId, _attestationAddress);\\r\\n\\t}\\r\\n\\r\\n\\tfunction updateUserName(string memory _newUserName) external {\\r\\n\\t\\trequire(bytes(_newUserName).length > 0, \\\"Username cannot be empty\\\");\\r\\n\\t\\tuint256 userId = walletToUserId[msg.sender];\\r\\n\\t\\trequire(userId != 0, \\\"User not registered\\\");\\r\\n\\r\\n\\t\\t// Ensure the caller is associated with this user account\\r\\n\\t\\trequire(\\r\\n\\t\\t\\tusers[userId].wallets.length > 0,\\r\\n\\t\\t\\t\\\"No wallets associated with this user\\\"\\r\\n\\t\\t);\\r\\n\\t\\tbool isAuthorized = false;\\r\\n\\t\\tfor (uint i = 0; i < users[userId].wallets.length; i++) {\\r\\n\\t\\t\\tif (users[userId].wallets[i] == msg.sender) {\\r\\n\\t\\t\\t\\tisAuthorized = true;\\r\\n\\t\\t\\t\\tbreak;\\r\\n\\t\\t\\t}\\r\\n\\t\\t}\\r\\n\\t\\trequire(isAuthorized, \\\"Not authorized to update this user's name\\\");\\r\\n\\r\\n\\t\\tusers[userId].userName = _newUserName;\\r\\n\\t\\temit UserNameUpdated(userId, _newUserName);\\r\\n\\t}\\r\\n\\r\\n\\tfunction getAttestationCount() external view returns (uint256) {\\r\\n\\t\\treturn _attestationIds.current();\\r\\n\\t}\\r\\n\\r\\n\\tfunction getWalletAttestations(\\r\\n\\t\\taddress _wallet,\\r\\n\\t\\tuint256 _offset,\\r\\n\\t\\tuint256 _limit\\r\\n\\t) public view returns (uint256[] memory attestationIds) {\\r\\n\\t\\trequire(\\r\\n\\t\\t\\twalletToUserId[_wallet] != 0,\\r\\n\\t\\t\\t\\\"Wallet not associated with any user\\\"\\r\\n\\t\\t);\\r\\n\\t\\tWalletAddress storage walletAddr = wallets[_wallet];\\r\\n\\t\\tuint256[] storage allAttestations = walletAddr.attestationIds;\\r\\n\\t\\tuint256 total = allAttestations.length;\\r\\n\\r\\n\\t\\trequire(_offset < total, \\\"Offset out of bounds\\\");\\r\\n\\r\\n\\t\\tuint256 end = _offset + _limit > total ? total : _offset + _limit;\\r\\n\\t\\tuint256 length = end - _offset;\\r\\n\\r\\n\\t\\tattestationIds = new uint256[](length);\\r\\n\\t\\tfor (uint256 i = 0; i < length; i++) {\\r\\n\\t\\t\\tattestationIds[i] = allAttestations[_offset + i];\\r\\n\\t\\t}\\r\\n\\r\\n\\t\\treturn attestationIds;\\r\\n\\t}\\r\\n\\r\\n\\tfunction getWalletAttestationCount(\\r\\n\\t\\taddress _wallet\\r\\n\\t) public view returns (uint256) {\\r\\n\\t\\treturn wallets[_wallet].attestationIds.length;\\r\\n\\t}\\r\\n\\r\\n\\tfunction getUserName(\\r\\n\\t\\taddress _wallet\\r\\n\\t) external view returns (string memory) {\\r\\n\\t\\tuint256 userId = walletToUserId[_wallet];\\r\\n\\t\\trequire(userId != 0, \\\"User not registered\\\");\\r\\n\\t\\treturn users[userId].userName;\\r\\n\\t}\\r\\n\\r\\n\\tfunction getUserWallets(\\r\\n\\t\\tuint256 _userId\\r\\n\\t) public view returns (address[] memory) {\\r\\n\\t\\trequire(users[_userId].userId != 0, \\\"User does not exist\\\");\\r\\n\\t\\treturn users[_userId].wallets;\\r\\n\\t}\\r\\n}\\r\\n\",\"keccak256\":\"0x3d788a82abce1231df9dd99961df6de1db62623327f0e4d374205e17aaf39c39\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x60806040523480156200001157600080fd5b5060405162001baa38038062001baa83398101604081905262000034916200039b565b600280546001600160a01b0319166001600160a01b0383169081179091556000908152600360209081526040909120805460ff1916600190811790915562000085916200015f811b62000e4317901c565b60006200009e60016200016860201b62000e4c1760201c565b6040805160608101825282815281518083018352600481526370306e6b60e01b60208281019190915282015291925081016000604051908082528060200260200182016040528015620000fb578160200160208202803683370190505b50905260008281526004602090815260409091208251815590820151600182019062000128908262000472565b506040820151805162000146916002840191602090910190620002dc565b50620001579150829050836200016c565b50506200053e565b80546001019055565b5490565b6001600160a01b03811660009081526005602052604090205415620001e55760405162461bcd60e51b815260206004820152602560248201527f57616c6c657420616c7265616479206173736f63696174656420776974682061604482015264103ab9b2b960d91b606482015260840160405180910390fd5b60008281526004602090815260408083206002018054600180820183559185528385200180546001600160a01b038781166001600160a01b031992831681179093558287526005865284872089905584516060810186528381528551888152808801875281880190815281870189905293885260068752949096208451815497169690911695909517855551805192949362000288939285019291019062000346565b50604091820151600291909101805460ff1916911515919091179055516001600160a01b0382169083907ff0306f4e8668d23ebcc691f3a47412cb3e3bc7a86b5be28204cf62853914ff1590600090a35050565b82805482825590600052602060002090810192821562000334579160200282015b828111156200033457825182546001600160a01b0319166001600160a01b03909116178255602090920191600190910190620002fd565b506200034292915062000384565b5090565b82805482825590600052602060002090810192821562000334579160200282015b828111156200033457825182559160200191906001019062000367565b5b8082111562000342576000815560010162000385565b600060208284031215620003ae57600080fd5b81516001600160a01b0381168114620003c657600080fd5b9392505050565b634e487b7160e01b600052604160045260246000fd5b600181811c90821680620003f857607f821691505b6020821081036200041957634e487b7160e01b600052602260045260246000fd5b50919050565b601f8211156200046d57600081815260208120601f850160051c81016020861015620004485750805b601f850160051c820191505b81811015620004695782815560010162000454565b5050505b505050565b81516001600160401b038111156200048e576200048e620003cd565b620004a6816200049f8454620003e3565b846200041f565b602080601f831160018114620004de5760008415620004c55750858301515b600019600386901b1c1916600185901b17855562000469565b600085815260208120601f198616915b828110156200050f57888601518255948401946001909101908401620004ee565b50858210156200052e5787850151600019600388901b60f8161c191681555b5050505050600190811b01905550565b61165c806200054e6000396000f3fe608060405234801561001057600080fd5b506004361061012c5760003560e01c8063962ea8ae116100ad578063d84f55ee11610071578063d84f55ee14610311578063e6c2e9d514610331578063f19e207e14610351578063fc0273d214610374578063fc399c79146103a057600080fd5b8063962ea8ae146102bb578063af9036a1146102c3578063b69c22b6146102d6578063c9b2c412146102de578063cafadbb9146102fe57600080fd5b8063704f1b94116100f4578063704f1b94146101ee57806370712939146102015780637f76d71c1461021457806389b08f11146102535780638da5cb5b146102a857600080fd5b80632e56822114610131578063365b98b21461017757806342f1181e146101985780634ab07122146101ad5780634bb54384146101c0575b600080fd5b61015a61013f36600461106e565b6007602052600090815260409020546001600160a01b031681565b6040516001600160a01b0390911681526020015b60405180910390f35b61018a61018536600461106e565b6103b3565b60405161016e9291906110cd565b6101ab6101a6366004611105565b610458565b005b6101ab6101bb366004611105565b6104af565b6101e06101ce366004611105565b60056020526000908152604090205481565b60405190815260200161016e565b6101e06101fc36600461116e565b61051c565b6101ab61020f366004611105565b610644565b610243610222366004611105565b6001600160a01b031660009081526006602052604090206002015460ff1690565b604051901515815260200161016e565b610289610261366004611105565b600660205260009081526040902080546002909101546001600160a01b039091169060ff1682565b604080516001600160a01b03909316835290151560208301520161016e565b60025461015a906001600160a01b031681565b6000546101e0565b6101ab6102d136600461116e565b61068f565b6101e0606481565b6102f16102ec36600461106e565b6108ab565b60405161016e9190611203565b6101ab61030c366004611250565b61096d565b61032461031f366004611105565b610b2f565b60405161016e9190611310565b61034461033f366004611323565b610c0c565b60405161016e9190611356565b61024361035f366004611105565b60036020526000908152604090205460ff1681565b6101e0610382366004611105565b6001600160a01b031660009081526006602052604090206001015490565b6101ab6103ae366004611105565b610d8e565b600460205260009081526040902080546001820180549192916103d59061138e565b80601f01602080910402602001604051908101604052809291908181526020018280546104019061138e565b801561044e5780601f106104235761010080835404028352916020019161044e565b820191906000526020600020905b81548152906001019060200180831161043157829003601f168201915b5050505050905082565b6002546001600160a01b0316331461048b5760405162461bcd60e51b8152600401610482906113c8565b60405180910390fd5b6001600160a01b03166000908152600360205260409020805460ff19166001179055565b3360009081526003602052604090205460ff166104de5760405162461bcd60e51b81526004016104829061140e565b336000908152600560205260408120549081900361050e5760405162461bcd60e51b815260040161048290611436565b6105188183610e50565b5050565b3360009081526003602052604081205460ff1661054b5760405162461bcd60e51b81526004016104829061140e565b33600090815260056020526040902054156105755750503360009081526005602052604090205490565b610583600180546001019055565b600061058e60015490565b6040805160608101825282815260208082018781528351600080825281840186528486019190915285815260049092529290208151815591519293509160018201906105da90826114b2565b50604082015180516105f6916002840191602090910190610fb9565b509050506106048133610e50565b807f4728104627c0775370e4d3628beda1b22b0bef17538f721f8e4d92976ce20823846040516106349190611310565b60405180910390a290505b919050565b6002546001600160a01b0316331461066e5760405162461bcd60e51b8152600401610482906113c8565b6001600160a01b03166000908152600360205260409020805460ff19169055565b60008151116106e05760405162461bcd60e51b815260206004820152601860248201527f557365726e616d652063616e6e6f7420626520656d70747900000000000000006044820152606401610482565b33600090815260056020526040812054908190036107105760405162461bcd60e51b815260040161048290611436565b60008181526004602052604090206002015461077a5760405162461bcd60e51b8152602060048201526024808201527f4e6f2077616c6c657473206173736f63696174656420776974682074686973206044820152633ab9b2b960e11b6064820152608401610482565b6000805b6000838152600460205260409020600201548110156107f25760008381526004602052604090206002018054339190839081106107bd576107bd611572565b6000918252602090912001546001600160a01b0316036107e057600191506107f2565b806107ea8161159e565b91505061077e565b50806108525760405162461bcd60e51b815260206004820152602960248201527f4e6f7420617574686f72697a656420746f20757064617465207468697320757360448201526865722773206e616d6560b81b6064820152608401610482565b600082815260046020526040902060010161086d84826114b2565b50817fd77b6a500a149e061024f0d4cec5764883a13c1fec01728d7a2626c43a1bc52f8460405161089e9190611310565b60405180910390a2505050565b600081815260046020526040812054606091036109005760405162461bcd60e51b8152602060048201526013602482015272155cd95c88191bd95cc81b9bdd08195e1a5cdd606a1b6044820152606401610482565b6000828152600460209081526040918290206002018054835181840281018401909452808452909183018282801561096157602002820191906000526020600020905b81546001600160a01b03168152600190910190602001808311610943575b50505050509050919050565b3360009081526003602052604090205460ff1661099c5760405162461bcd60e51b81526004016104829061140e565b6109aa600080546001019055565b6000805480825260076020526040822080546001600160a01b0319166001600160a01b038616179055905b8251811015610af35760008382815181106109f2576109f2611572565b6020908102919091018101516001600160a01b038116600090815260069092526040909120600181015491925090606411610a805760405162461bcd60e51b815260206004820152602860248201527f4d6178206174746573746174696f6e73207265616368656420666f72207468696044820152671cc81dd85b1b195d60c21b6064820152608401610482565b600180820180549182018155600090815260209020018490556040516001600160a01b038316907f2074f22896a599e7a864bcaedf5dacd8b9df3cd43116f5d12c3462e85f26d51190610ad69087815260200190565b60405180910390a250508080610aeb9061159e565b9150506109d5565b506040516001600160a01b038416815281907f4261780a281c7b5d48b963e68ef6a1455cf7f9dcb1b158e5e69eeaa82a0098f59060200161089e565b6001600160a01b038116600090815260056020526040812054606091819003610b6a5760405162461bcd60e51b815260040161048290611436565b60008181526004602052604090206001018054610b869061138e565b80601f0160208091040260200160405190810160405280929190818152602001828054610bb29061138e565b8015610bff5780601f10610bd457610100808354040283529160200191610bff565b820191906000526020600020905b815481529060010190602001808311610be257829003601f168201915b5050505050915050919050565b6001600160a01b03831660009081526005602052604081205460609103610c455760405162461bcd60e51b8152600401610482906115b7565b6001600160a01b0384166000908152600660205260409020600181018054808610610ca95760405162461bcd60e51b81526020600482015260146024820152734f6666736574206f7574206f6620626f756e647360601b6044820152606401610482565b600081610cb687896115fa565b11610cca57610cc586886115fa565b610ccc565b815b90506000610cda8883611613565b90508067ffffffffffffffff811115610cf557610cf5611127565b604051908082528060200260200182016040528015610d1e578160200160208202803683370190505b50955060005b81811015610d815784610d37828b6115fa565b81548110610d4757610d47611572565b9060005260206000200154878281518110610d6457610d64611572565b602090810291909101015280610d798161159e565b915050610d24565b5050505050509392505050565b3360009081526003602052604090205460ff16610dbd5760405162461bcd60e51b81526004016104829061140e565b6001600160a01b0381166000908152600560205260408120549003610df45760405162461bcd60e51b8152600401610482906115b7565b6001600160a01b038116600081815260066020526040808220600201805460ff19166001179055517ffb44ff3eebb7f4ccc77e0b5b51902509405960cb2e09b1d24846e951adb958b79190a250565b80546001019055565b5490565b6001600160a01b03811660009081526005602052604090205415610ec45760405162461bcd60e51b815260206004820152602560248201527f57616c6c657420616c7265616479206173736f63696174656420776974682061604482015264103ab9b2b960d91b6064820152608401610482565b60008281526004602090815260408083206002018054600180820183559185528385200180546001600160a01b038781166001600160a01b0319928316811790935582875260058652848720899055845160608101865283815285518881528088018752818801908152818701899052938852600687529490962084518154971696909116959095178555518051929493610f65939285019291019061101e565b50604091820151600291909101805460ff1916911515919091179055516001600160a01b0382169083907ff0306f4e8668d23ebcc691f3a47412cb3e3bc7a86b5be28204cf62853914ff1590600090a35050565b82805482825590600052602060002090810192821561100e579160200282015b8281111561100e57825182546001600160a01b0319166001600160a01b03909116178255602090920191600190910190610fd9565b5061101a929150611059565b5090565b82805482825590600052602060002090810192821561100e579160200282015b8281111561100e57825182559160200191906001019061103e565b5b8082111561101a576000815560010161105a565b60006020828403121561108057600080fd5b5035919050565b6000815180845260005b818110156110ad57602081850181015186830182015201611091565b506000602082860101526020601f19601f83011685010191505092915050565b8281526040602082015260006110e66040830184611087565b949350505050565b80356001600160a01b038116811461063f57600080fd5b60006020828403121561111757600080fd5b611120826110ee565b9392505050565b634e487b7160e01b600052604160045260246000fd5b604051601f8201601f1916810167ffffffffffffffff8111828210171561116657611166611127565b604052919050565b6000602080838503121561118157600080fd5b823567ffffffffffffffff8082111561119957600080fd5b818501915085601f8301126111ad57600080fd5b8135818111156111bf576111bf611127565b6111d1601f8201601f1916850161113d565b915080825286848285010111156111e757600080fd5b8084840185840137600090820190930192909252509392505050565b6020808252825182820181905260009190848201906040850190845b818110156112445783516001600160a01b03168352928401929184019160010161121f565b50909695505050505050565b6000806040838503121561126357600080fd5b61126c836110ee565b915060208084013567ffffffffffffffff8082111561128a57600080fd5b818601915086601f83011261129e57600080fd5b8135818111156112b0576112b0611127565b8060051b91506112c184830161113d565b81815291830184019184810190898411156112db57600080fd5b938501935b83851015611300576112f1856110ee565b825293850193908501906112e0565b8096505050505050509250929050565b6020815260006111206020830184611087565b60008060006060848603121561133857600080fd5b611341846110ee565b95602085013595506040909401359392505050565b6020808252825182820181905260009190848201906040850190845b8181101561124457835183529284019291840191600101611372565b600181811c908216806113a257607f821691505b6020821081036113c257634e487b7160e01b600052602260045260246000fd5b50919050565b60208082526026908201527f4f6e6c7920746865206f776e65722063616e20706572666f726d20746869732060408201526530b1ba34b7b760d11b606082015260800190565b6020808252600e908201526d139bdd08185d5d1a1bdc9a5e995960921b604082015260600190565b602080825260139082015272155cd95c881b9bdd081c9959da5cdd195c9959606a1b604082015260600190565b601f8211156114ad57600081815260208120601f850160051c8101602086101561148a5750805b601f850160051c820191505b818110156114a957828155600101611496565b5050505b505050565b815167ffffffffffffffff8111156114cc576114cc611127565b6114e0816114da845461138e565b84611463565b602080601f83116001811461151557600084156114fd5750858301515b600019600386901b1c1916600185901b1785556114a9565b600085815260208120601f198616915b8281101561154457888601518255948401946001909101908401611525565b50858210156115625787850151600019600388901b60f8161c191681555b5050505050600190811b01905550565b634e487b7160e01b600052603260045260246000fd5b634e487b7160e01b600052601160045260246000fd5b6000600182016115b0576115b0611588565b5060010190565b60208082526023908201527f57616c6c6574206e6f74206173736f636961746564207769746820616e79207560408201526239b2b960e91b606082015260800190565b8082018082111561160d5761160d611588565b92915050565b8181038181111561160d5761160d61158856fea2646970667358221220cb33412bc221db969ceed4c66f7d65b9e41d2c5456ad90d5e70f113e34e10afe64736f6c63430008110033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b506004361061012c5760003560e01c8063962ea8ae116100ad578063d84f55ee11610071578063d84f55ee14610311578063e6c2e9d514610331578063f19e207e14610351578063fc0273d214610374578063fc399c79146103a057600080fd5b8063962ea8ae146102bb578063af9036a1146102c3578063b69c22b6146102d6578063c9b2c412146102de578063cafadbb9146102fe57600080fd5b8063704f1b94116100f4578063704f1b94146101ee57806370712939146102015780637f76d71c1461021457806389b08f11146102535780638da5cb5b146102a857600080fd5b80632e56822114610131578063365b98b21461017757806342f1181e146101985780634ab07122146101ad5780634bb54384146101c0575b600080fd5b61015a61013f36600461106e565b6007602052600090815260409020546001600160a01b031681565b6040516001600160a01b0390911681526020015b60405180910390f35b61018a61018536600461106e565b6103b3565b60405161016e9291906110cd565b6101ab6101a6366004611105565b610458565b005b6101ab6101bb366004611105565b6104af565b6101e06101ce366004611105565b60056020526000908152604090205481565b60405190815260200161016e565b6101e06101fc36600461116e565b61051c565b6101ab61020f366004611105565b610644565b610243610222366004611105565b6001600160a01b031660009081526006602052604090206002015460ff1690565b604051901515815260200161016e565b610289610261366004611105565b600660205260009081526040902080546002909101546001600160a01b039091169060ff1682565b604080516001600160a01b03909316835290151560208301520161016e565b60025461015a906001600160a01b031681565b6000546101e0565b6101ab6102d136600461116e565b61068f565b6101e0606481565b6102f16102ec36600461106e565b6108ab565b60405161016e9190611203565b6101ab61030c366004611250565b61096d565b61032461031f366004611105565b610b2f565b60405161016e9190611310565b61034461033f366004611323565b610c0c565b60405161016e9190611356565b61024361035f366004611105565b60036020526000908152604090205460ff1681565b6101e0610382366004611105565b6001600160a01b031660009081526006602052604090206001015490565b6101ab6103ae366004611105565b610d8e565b600460205260009081526040902080546001820180549192916103d59061138e565b80601f01602080910402602001604051908101604052809291908181526020018280546104019061138e565b801561044e5780601f106104235761010080835404028352916020019161044e565b820191906000526020600020905b81548152906001019060200180831161043157829003601f168201915b5050505050905082565b6002546001600160a01b0316331461048b5760405162461bcd60e51b8152600401610482906113c8565b60405180910390fd5b6001600160a01b03166000908152600360205260409020805460ff19166001179055565b3360009081526003602052604090205460ff166104de5760405162461bcd60e51b81526004016104829061140e565b336000908152600560205260408120549081900361050e5760405162461bcd60e51b815260040161048290611436565b6105188183610e50565b5050565b3360009081526003602052604081205460ff1661054b5760405162461bcd60e51b81526004016104829061140e565b33600090815260056020526040902054156105755750503360009081526005602052604090205490565b610583600180546001019055565b600061058e60015490565b6040805160608101825282815260208082018781528351600080825281840186528486019190915285815260049092529290208151815591519293509160018201906105da90826114b2565b50604082015180516105f6916002840191602090910190610fb9565b509050506106048133610e50565b807f4728104627c0775370e4d3628beda1b22b0bef17538f721f8e4d92976ce20823846040516106349190611310565b60405180910390a290505b919050565b6002546001600160a01b0316331461066e5760405162461bcd60e51b8152600401610482906113c8565b6001600160a01b03166000908152600360205260409020805460ff19169055565b60008151116106e05760405162461bcd60e51b815260206004820152601860248201527f557365726e616d652063616e6e6f7420626520656d70747900000000000000006044820152606401610482565b33600090815260056020526040812054908190036107105760405162461bcd60e51b815260040161048290611436565b60008181526004602052604090206002015461077a5760405162461bcd60e51b8152602060048201526024808201527f4e6f2077616c6c657473206173736f63696174656420776974682074686973206044820152633ab9b2b960e11b6064820152608401610482565b6000805b6000838152600460205260409020600201548110156107f25760008381526004602052604090206002018054339190839081106107bd576107bd611572565b6000918252602090912001546001600160a01b0316036107e057600191506107f2565b806107ea8161159e565b91505061077e565b50806108525760405162461bcd60e51b815260206004820152602960248201527f4e6f7420617574686f72697a656420746f20757064617465207468697320757360448201526865722773206e616d6560b81b6064820152608401610482565b600082815260046020526040902060010161086d84826114b2565b50817fd77b6a500a149e061024f0d4cec5764883a13c1fec01728d7a2626c43a1bc52f8460405161089e9190611310565b60405180910390a2505050565b600081815260046020526040812054606091036109005760405162461bcd60e51b8152602060048201526013602482015272155cd95c88191bd95cc81b9bdd08195e1a5cdd606a1b6044820152606401610482565b6000828152600460209081526040918290206002018054835181840281018401909452808452909183018282801561096157602002820191906000526020600020905b81546001600160a01b03168152600190910190602001808311610943575b50505050509050919050565b3360009081526003602052604090205460ff1661099c5760405162461bcd60e51b81526004016104829061140e565b6109aa600080546001019055565b6000805480825260076020526040822080546001600160a01b0319166001600160a01b038616179055905b8251811015610af35760008382815181106109f2576109f2611572565b6020908102919091018101516001600160a01b038116600090815260069092526040909120600181015491925090606411610a805760405162461bcd60e51b815260206004820152602860248201527f4d6178206174746573746174696f6e73207265616368656420666f72207468696044820152671cc81dd85b1b195d60c21b6064820152608401610482565b600180820180549182018155600090815260209020018490556040516001600160a01b038316907f2074f22896a599e7a864bcaedf5dacd8b9df3cd43116f5d12c3462e85f26d51190610ad69087815260200190565b60405180910390a250508080610aeb9061159e565b9150506109d5565b506040516001600160a01b038416815281907f4261780a281c7b5d48b963e68ef6a1455cf7f9dcb1b158e5e69eeaa82a0098f59060200161089e565b6001600160a01b038116600090815260056020526040812054606091819003610b6a5760405162461bcd60e51b815260040161048290611436565b60008181526004602052604090206001018054610b869061138e565b80601f0160208091040260200160405190810160405280929190818152602001828054610bb29061138e565b8015610bff5780601f10610bd457610100808354040283529160200191610bff565b820191906000526020600020905b815481529060010190602001808311610be257829003601f168201915b5050505050915050919050565b6001600160a01b03831660009081526005602052604081205460609103610c455760405162461bcd60e51b8152600401610482906115b7565b6001600160a01b0384166000908152600660205260409020600181018054808610610ca95760405162461bcd60e51b81526020600482015260146024820152734f6666736574206f7574206f6620626f756e647360601b6044820152606401610482565b600081610cb687896115fa565b11610cca57610cc586886115fa565b610ccc565b815b90506000610cda8883611613565b90508067ffffffffffffffff811115610cf557610cf5611127565b604051908082528060200260200182016040528015610d1e578160200160208202803683370190505b50955060005b81811015610d815784610d37828b6115fa565b81548110610d4757610d47611572565b9060005260206000200154878281518110610d6457610d64611572565b602090810291909101015280610d798161159e565b915050610d24565b5050505050509392505050565b3360009081526003602052604090205460ff16610dbd5760405162461bcd60e51b81526004016104829061140e565b6001600160a01b0381166000908152600560205260408120549003610df45760405162461bcd60e51b8152600401610482906115b7565b6001600160a01b038116600081815260066020526040808220600201805460ff19166001179055517ffb44ff3eebb7f4ccc77e0b5b51902509405960cb2e09b1d24846e951adb958b79190a250565b80546001019055565b5490565b6001600160a01b03811660009081526005602052604090205415610ec45760405162461bcd60e51b815260206004820152602560248201527f57616c6c657420616c7265616479206173736f63696174656420776974682061604482015264103ab9b2b960d91b6064820152608401610482565b60008281526004602090815260408083206002018054600180820183559185528385200180546001600160a01b038781166001600160a01b0319928316811790935582875260058652848720899055845160608101865283815285518881528088018752818801908152818701899052938852600687529490962084518154971696909116959095178555518051929493610f65939285019291019061101e565b50604091820151600291909101805460ff1916911515919091179055516001600160a01b0382169083907ff0306f4e8668d23ebcc691f3a47412cb3e3bc7a86b5be28204cf62853914ff1590600090a35050565b82805482825590600052602060002090810192821561100e579160200282015b8281111561100e57825182546001600160a01b0319166001600160a01b03909116178255602090920191600190910190610fd9565b5061101a929150611059565b5090565b82805482825590600052602060002090810192821561100e579160200282015b8281111561100e57825182559160200191906001019061103e565b5b8082111561101a576000815560010161105a565b60006020828403121561108057600080fd5b5035919050565b6000815180845260005b818110156110ad57602081850181015186830182015201611091565b506000602082860101526020601f19601f83011685010191505092915050565b8281526040602082015260006110e66040830184611087565b949350505050565b80356001600160a01b038116811461063f57600080fd5b60006020828403121561111757600080fd5b611120826110ee565b9392505050565b634e487b7160e01b600052604160045260246000fd5b604051601f8201601f1916810167ffffffffffffffff8111828210171561116657611166611127565b604052919050565b6000602080838503121561118157600080fd5b823567ffffffffffffffff8082111561119957600080fd5b818501915085601f8301126111ad57600080fd5b8135818111156111bf576111bf611127565b6111d1601f8201601f1916850161113d565b915080825286848285010111156111e757600080fd5b8084840185840137600090820190930192909252509392505050565b6020808252825182820181905260009190848201906040850190845b818110156112445783516001600160a01b03168352928401929184019160010161121f565b50909695505050505050565b6000806040838503121561126357600080fd5b61126c836110ee565b915060208084013567ffffffffffffffff8082111561128a57600080fd5b818601915086601f83011261129e57600080fd5b8135818111156112b0576112b0611127565b8060051b91506112c184830161113d565b81815291830184019184810190898411156112db57600080fd5b938501935b83851015611300576112f1856110ee565b825293850193908501906112e0565b8096505050505050509250929050565b6020815260006111206020830184611087565b60008060006060848603121561133857600080fd5b611341846110ee565b95602085013595506040909401359392505050565b6020808252825182820181905260009190848201906040850190845b8181101561124457835183529284019291840191600101611372565b600181811c908216806113a257607f821691505b6020821081036113c257634e487b7160e01b600052602260045260246000fd5b50919050565b60208082526026908201527f4f6e6c7920746865206f776e65722063616e20706572666f726d20746869732060408201526530b1ba34b7b760d11b606082015260800190565b6020808252600e908201526d139bdd08185d5d1a1bdc9a5e995960921b604082015260600190565b602080825260139082015272155cd95c881b9bdd081c9959da5cdd195c9959606a1b604082015260600190565b601f8211156114ad57600081815260208120601f850160051c8101602086101561148a5750805b601f850160051c820191505b818110156114a957828155600101611496565b5050505b505050565b815167ffffffffffffffff8111156114cc576114cc611127565b6114e0816114da845461138e565b84611463565b602080601f83116001811461151557600084156114fd5750858301515b600019600386901b1c1916600185901b1785556114a9565b600085815260208120601f198616915b8281101561154457888601518255948401946001909101908401611525565b50858210156115625787850151600019600388901b60f8161c191681555b5050505050600190811b01905550565b634e487b7160e01b600052603260045260246000fd5b634e487b7160e01b600052601160045260246000fd5b6000600182016115b0576115b0611588565b5060010190565b60208082526023908201527f57616c6c6574206e6f74206173736f636961746564207769746820616e79207560408201526239b2b960e91b606082015260800190565b8082018082111561160d5761160d611588565b92915050565b8181038181111561160d5761160d61158856fea2646970667358221220cb33412bc221db969ceed4c66f7d65b9e41d2c5456ad90d5e70f113e34e10afe64736f6c63430008110033",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {},
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 1633,
+        "contract": "contracts/MainRegistry.sol:MainRegistry",
+        "label": "_attestationIds",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_struct(Counter)205_storage"
+      },
+      {
+        "astId": 1636,
+        "contract": "contracts/MainRegistry.sol:MainRegistry",
+        "label": "_userIds",
+        "offset": 0,
+        "slot": "1",
+        "type": "t_struct(Counter)205_storage"
+      },
+      {
+        "astId": 1654,
+        "contract": "contracts/MainRegistry.sol:MainRegistry",
+        "label": "owner",
+        "offset": 0,
+        "slot": "2",
+        "type": "t_address"
+      },
+      {
+        "astId": 1658,
+        "contract": "contracts/MainRegistry.sol:MainRegistry",
+        "label": "authorizedAddresses",
+        "offset": 0,
+        "slot": "3",
+        "type": "t_mapping(t_address,t_bool)"
+      },
+      {
+        "astId": 1663,
+        "contract": "contracts/MainRegistry.sol:MainRegistry",
+        "label": "users",
+        "offset": 0,
+        "slot": "4",
+        "type": "t_mapping(t_uint256,t_struct(UserProfile)1652_storage)"
+      },
+      {
+        "astId": 1667,
+        "contract": "contracts/MainRegistry.sol:MainRegistry",
+        "label": "walletToUserId",
+        "offset": 0,
+        "slot": "5",
+        "type": "t_mapping(t_address,t_uint256)"
+      },
+      {
+        "astId": 1672,
+        "contract": "contracts/MainRegistry.sol:MainRegistry",
+        "label": "wallets",
+        "offset": 0,
+        "slot": "6",
+        "type": "t_mapping(t_address,t_struct(WalletAddress)1644_storage)"
+      },
+      {
+        "astId": 1676,
+        "contract": "contracts/MainRegistry.sol:MainRegistry",
+        "label": "attestationAddresses",
+        "offset": 0,
+        "slot": "7",
+        "type": "t_mapping(t_uint256,t_address)"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      },
+      "t_array(t_address)dyn_storage": {
+        "base": "t_address",
+        "encoding": "dynamic_array",
+        "label": "address[]",
+        "numberOfBytes": "32"
+      },
+      "t_array(t_uint256)dyn_storage": {
+        "base": "t_uint256",
+        "encoding": "dynamic_array",
+        "label": "uint256[]",
+        "numberOfBytes": "32"
+      },
+      "t_bool": {
+        "encoding": "inplace",
+        "label": "bool",
+        "numberOfBytes": "1"
+      },
+      "t_mapping(t_address,t_bool)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => bool)",
+        "numberOfBytes": "32",
+        "value": "t_bool"
+      },
+      "t_mapping(t_address,t_struct(WalletAddress)1644_storage)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => struct MainRegistry.WalletAddress)",
+        "numberOfBytes": "32",
+        "value": "t_struct(WalletAddress)1644_storage"
+      },
+      "t_mapping(t_address,t_uint256)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => uint256)",
+        "numberOfBytes": "32",
+        "value": "t_uint256"
+      },
+      "t_mapping(t_uint256,t_address)": {
+        "encoding": "mapping",
+        "key": "t_uint256",
+        "label": "mapping(uint256 => address)",
+        "numberOfBytes": "32",
+        "value": "t_address"
+      },
+      "t_mapping(t_uint256,t_struct(UserProfile)1652_storage)": {
+        "encoding": "mapping",
+        "key": "t_uint256",
+        "label": "mapping(uint256 => struct MainRegistry.UserProfile)",
+        "numberOfBytes": "32",
+        "value": "t_struct(UserProfile)1652_storage"
+      },
+      "t_string_storage": {
+        "encoding": "bytes",
+        "label": "string",
+        "numberOfBytes": "32"
+      },
+      "t_struct(Counter)205_storage": {
+        "encoding": "inplace",
+        "label": "struct Counters.Counter",
+        "members": [
+          {
+            "astId": 204,
+            "contract": "contracts/MainRegistry.sol:MainRegistry",
+            "label": "_value",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint256"
+          }
+        ],
+        "numberOfBytes": "32"
+      },
+      "t_struct(UserProfile)1652_storage": {
+        "encoding": "inplace",
+        "label": "struct MainRegistry.UserProfile",
+        "members": [
+          {
+            "astId": 1646,
+            "contract": "contracts/MainRegistry.sol:MainRegistry",
+            "label": "userId",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 1648,
+            "contract": "contracts/MainRegistry.sol:MainRegistry",
+            "label": "userName",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_string_storage"
+          },
+          {
+            "astId": 1651,
+            "contract": "contracts/MainRegistry.sol:MainRegistry",
+            "label": "wallets",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_array(t_address)dyn_storage"
+          }
+        ],
+        "numberOfBytes": "96"
+      },
+      "t_struct(WalletAddress)1644_storage": {
+        "encoding": "inplace",
+        "label": "struct MainRegistry.WalletAddress",
+        "members": [
+          {
+            "astId": 1638,
+            "contract": "contracts/MainRegistry.sol:MainRegistry",
+            "label": "userAddress",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_address"
+          },
+          {
+            "astId": 1641,
+            "contract": "contracts/MainRegistry.sol:MainRegistry",
+            "label": "attestationIds",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)dyn_storage"
+          },
+          {
+            "astId": 1643,
+            "contract": "contracts/MainRegistry.sol:MainRegistry",
+            "label": "isVerified",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_bool"
+          }
+        ],
+        "numberOfBytes": "96"
+      },
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      }
+    }
+  }
+}
