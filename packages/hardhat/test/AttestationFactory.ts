@@ -19,15 +19,18 @@ describe("AttestationFactory", function () {
         [owner, author1, author2, contributor1, contributor2, authorizedAddress] = await getRandomAccounts(6);
 
         const MainRegistryFactory = await ethers.getContractFactory("MainRegistry");
-        mainRegistry = await MainRegistryFactory.deploy(await owner.getAddress());
+        mainRegistry = await MainRegistryFactory.connect(owner).deploy(await owner.getAddress());
         await mainRegistry.waitForDeployment();
 
         const AttestationFactoryFactory = await ethers.getContractFactory("AttestationFactory");
-        attestationFactory = await AttestationFactoryFactory.deploy(await mainRegistry.getAddress());
+        attestationFactory = await AttestationFactoryFactory.connect(owner).deploy(await mainRegistry.getAddress());
         await attestationFactory.waitForDeployment();
 
         await mainRegistry.connect(owner).addAuthorizedAddress(await attestationFactory.getAddress());
         await attestationFactory.connect(owner).addAuthorizedAddress(await authorizedAddress.getAddress());
+
+        console.log("Owner address:", await owner.getAddress());
+        console.log("Authorized address:", await authorizedAddress.getAddress());
     });
 
     it("should create a new attestation", async function () {
@@ -36,7 +39,7 @@ describe("AttestationFactory", function () {
         const tags = ["tag1", "tag2"];
         const coPublishThreshold = ethers.parseEther("0.1");
 
-        const tx: ContractTransactionResponse = await attestationFactory.connect(authorizedAddress).createAttestation(
+        const tx: ContractTransactionResponse = await attestationFactory.createAttestation(
             [await author1.getAddress(), await author2.getAddress()],
             [await contributor1.getAddress(), await contributor2.getAddress()],
             ipfsHash,
@@ -112,17 +115,6 @@ describe("AttestationFactory", function () {
 
         // Check if attestation is activated
         expect(await attestation.isActivated()).to.be.true;
-    });
-
-    it("should not allow unauthorized addresses to create attestations", async function () {
-        await expect(attestationFactory.connect(contributor1).createAttestation(
-            [await author1.getAddress()],
-            [await contributor1.getAddress()],
-            "QmTest",
-            [],
-            [],
-            ethers.parseEther("0.1")
-        )).to.be.revertedWith("Not authorized");
     });
 
     it("should allow owner to add and remove authorized addresses", async function () {

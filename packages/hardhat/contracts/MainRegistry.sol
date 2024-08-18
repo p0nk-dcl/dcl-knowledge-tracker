@@ -84,11 +84,13 @@ contract MainRegistry {
 		emit WalletAdded(_userId, _wallet);
 	}
 
-	function registerUser(string memory _userName) external returns (uint256) {
-		require(
-			walletToUserId[msg.sender] == 0,
-			"Wallet already associated with a user"
-		);
+	function registerUser(
+		string memory _userName
+	) external onlyAuthorized returns (uint256) {
+		if (walletToUserId[msg.sender] != 0) {
+			// User already registered, return existing userId
+			return walletToUserId[msg.sender];
+		}
 
 		_userIds.increment();
 		uint256 newUserId = _userIds.current();
@@ -104,7 +106,7 @@ contract MainRegistry {
 		return newUserId;
 	}
 
-	function addWalletToUser(address _newWallet) external {
+	function addWalletToUser(address _newWallet) external onlyAuthorized {
 		uint256 userId = walletToUserId[msg.sender];
 		require(userId != 0, "User not registered");
 		_addWalletToUser(userId, _newWallet);
@@ -157,6 +159,20 @@ contract MainRegistry {
 		require(bytes(_newUserName).length > 0, "Username cannot be empty");
 		uint256 userId = walletToUserId[msg.sender];
 		require(userId != 0, "User not registered");
+
+		// Ensure the caller is associated with this user account
+		require(
+			users[userId].wallets.length > 0,
+			"No wallets associated with this user"
+		);
+		bool isAuthorized = false;
+		for (uint i = 0; i < users[userId].wallets.length; i++) {
+			if (users[userId].wallets[i] == msg.sender) {
+				isAuthorized = true;
+				break;
+			}
+		}
+		require(isAuthorized, "Not authorized to update this user's name");
 
 		users[userId].userName = _newUserName;
 		emit UserNameUpdated(userId, _newUserName);
