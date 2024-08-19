@@ -13,9 +13,32 @@ export async function createAttestation(
     coPublishThreshold: string
 ): Promise<string> {
     try {
-        const signer = await provider.getSigner();
+        // Check if the provider is properly connected
+        if (!provider.provider) {
+            throw new Error("Provider is not properly connected");
+        }
+
+        // Ensure the user is connected to a supported network
+        const network = await provider.getNetwork();
+        console.log("Connected to network:", network.name);
+
+        // Get the signer
+        let signer;
+        try {
+            signer = await provider.getSigner();
+        } catch (signerError) {
+            console.error("Error getting signer:", signerError);
+            throw new Error("Failed to get signer. Make sure you're connected to MetaMask.");
+        }
+
+        // Get the connected address
+        const address = await signer.getAddress();
+        console.log("Connected address:", address);
+
+        // Create contract instance
         const contract = new ethers.Contract(attestationFactoryAddress, AttestationFactoryABI.abi, signer);
 
+        //Prepare transaction
         const tx = await contract.createAttestation(
             authors,
             contributors,
@@ -24,8 +47,11 @@ export async function createAttestation(
             tags,
             ethers.parseEther(coPublishThreshold)
         );
+        console.log("Transaction sent:", tx.hash);
 
+        // Wait for transaction to be mined
         const receipt = await tx.wait();
+        console.log("Transaction mined:", receipt.transactionHash);
 
         // Find the AttestationCreated event in the transaction receipt
         const event = receipt.logs.find((log: ethers.Log) => {
@@ -55,7 +81,11 @@ export async function createAttestation(
         return newAttestationAddress;
     } catch (error: unknown) {
         console.error('Error creating attestation:', error);
-        throw error;
+        if (error instanceof Error) {
+            throw new Error(`Failed to create attestation: ${error.message}`);
+        } else {
+            throw new Error('An unknown error occurred while creating the attestation');
+        }
     }
 }
 
