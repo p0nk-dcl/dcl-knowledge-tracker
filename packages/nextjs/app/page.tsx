@@ -25,6 +25,9 @@ const Home: NextPage = () => {
   const [file, setFile] = useState<File | null>(null);
   const [ipfsUrls, setIpfsUrls] = useState({ metadata: '', resource: '' });
   const [smartContractAddress, setSmartContractAddress] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [isTestingMode, setIsTestingMode] = useState(false);
+
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -69,6 +72,8 @@ const Home: NextPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+
     if (!file) {
       alert('Please select a file to upload');
       return;
@@ -98,7 +103,21 @@ const Home: NextPage = () => {
 
     // Generate metadata image
     const svgImage = generateNFTMetadataImage(nftMetadata);
-    const metadataImageUrl = await uploadToPinata(svgImage);
+
+    let metadataImageUrl = '';
+
+    if (isTestingMode) {
+      // Use dummy IPFS hash for testing
+      metadataImageUrl = 'QmTestHash1234567890TestHash1234567890TestHash10';
+    } else {
+      // Perform actual IPFS upload
+      const uploadResult = await uploadToPinata(svgImage);
+      if (uploadResult === null) {
+        throw new Error('Failed to upload metadata image to IPFS/Pinata');
+      }
+      metadataImageUrl = uploadResult;
+    }
+
 
     if (!metadataImageUrl) {
       alert('Failed to upload metadata image to IPFS/Pinata');
@@ -123,10 +142,18 @@ const Home: NextPage = () => {
     };
 
     // Upload final metadata
-    const metadataUrl = await uploadToPinata(JSON.stringify(finalMetadata));
-    if (!metadataUrl) {
-      alert('Failed to upload metadata to IPFS/Pinata');
-      return;
+    let metadataUrl = '';
+
+    if (isTestingMode) {
+      // Use dummy IPFS hash for testing
+      metadataUrl = 'QmTestHash1234567890TestHash1234567890TestHash12';
+    } else {
+      // Perform actual IPFS upload
+      const uploadResult = await uploadToPinata(JSON.stringify(finalMetadata));
+      if (uploadResult == null) {
+        throw new Error('Failed to upload metadata image to IPFS/Pinata');
+      }
+      metadataUrl = uploadResult;
     }
 
     setIpfsUrls({ metadata: metadataUrl, resource: resourceUrl });
@@ -182,6 +209,16 @@ const Home: NextPage = () => {
       {/* <div className="flex items-center flex-col flex-grow w-full mt-16 px-4 py-12 flex justify-center">
         <form onSubmit={handleSubmit} className="flex flex-col space-y-4 bg-white p-8 rounded-none shadow-md w-full max-w-lg"> */}
       <div className="flex flex-col items-center w-full mt-16 px-4 py-12">
+        <div className="flex items-center mb-4">
+          <input
+            type="checkbox"
+            id="testingMode"
+            checked={isTestingMode}
+            onChange={(e) => setIsTestingMode(e.target.checked)}
+            className="mr-2"
+          />
+          <label htmlFor="testingMode">Enable Testing Mode (bypass IPFS upload)</label>
+        </div>
         <form onSubmit={handleSubmit} className="flex flex-col space-y-4 bg-white p-8 rounded-lg shadow-md w-full max-w-lg mb-8">
           <label className="font-semibold">Author Name:</label>
           <input
