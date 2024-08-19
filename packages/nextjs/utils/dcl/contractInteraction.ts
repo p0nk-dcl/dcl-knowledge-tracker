@@ -3,8 +3,24 @@ import AttestationFactoryABI from '../../../hardhat/artifacts/contracts/Attestat
 
 const attestationFactoryAddress = "0xe06D5F27bB990Ce83002F2B97F651BA1899d9eE0";
 
+interface WalletClient {
+    account: { address: string };
+    chain: { id: number; name: string };
+    transport: { request: (args: any) => Promise<any> };
+    sendTransaction: (args: any) => Promise<`0x${string}`>;
+}
+
+async function walletClientToEthersProvider(walletClient: WalletClient) {
+    const network = {
+        chainId: walletClient.chain.id,
+        name: walletClient.chain.name
+    };
+    const provider = new ethers.BrowserProvider(walletClient.transport, network);
+    return provider;
+}
+
 export async function createAttestation(
-    provider: ethers.BrowserProvider,
+    walletClient: WalletClient,
     authors: string[],
     contributors: string[],
     ipfsHash: string,
@@ -13,33 +29,25 @@ export async function createAttestation(
     coPublishThreshold: string
 ): Promise<string> {
     try {
-        // Check if the provider is properly connected
-        if (!provider.provider) {
-            throw new Error("Provider is not properly connected");
+        console.log("Starting createAttestation function");
+
+        if (!walletClient || !walletClient.account) {
+            throw new Error("Invalid wallet client provided");
         }
 
-        // Ensure the user is connected to a supported network
-        const network = await provider.getNetwork();
-        console.log("Connected to network:", network.name);
+        const provider = await walletClientToEthersProvider(walletClient);
+        const signer = await provider.getSigner(walletClient.account.address);
 
-        // Get the signer
-        let signer;
-        try {
-            signer = await provider.getSigner();
-        } catch (signerError) {
-            console.error("Error getting signer:", signerError);
-            throw new Error("Failed to get signer. Make sure you're connected to MetaMask.");
-        }
-
-        // Get the connected address
-        const address = await signer.getAddress();
-        console.log("Connected address:", address);
+        console.log("Connected address:", walletClient.account.address);
 
         // Create contract instance
+        console.log("Creating contract instance with address:", attestationFactoryAddress);
         const contract = new ethers.Contract(attestationFactoryAddress, AttestationFactoryABI.abi, signer);
+        console.log("Contract instance created");
 
-        //Prepare transaction
-        const tx = await contract.createAttestation(
+        // Prepare transaction
+        console.log("Preparing transaction...");
+        const txRequest = await contract.createAttestation.populateTransaction(
             authors,
             contributors,
             ipfsHash,
@@ -47,32 +55,43 @@ export async function createAttestation(
             tags,
             ethers.parseEther(coPublishThreshold)
         );
-        console.log("Transaction sent:", tx.hash);
+
+        // Send transaction using walletClient
+        const txHash = await walletClient.sendTransaction({
+            ...txRequest,
+            from: walletClient.account.address
+        });
+        console.log("Transaction sent:", txHash);
 
         // Wait for transaction to be mined
-        const receipt = await tx.wait();
-        console.log("Transaction mined:", receipt.transactionHash);
+        const receipt = await provider.waitForTransaction(txHash);
+        if (!receipt) {
+            throw new Error('Transaction receipt is null');
+        }
+        console.log("Transaction mined:", receipt.hash);
 
         // Find the AttestationCreated event in the transaction receipt
-        const event = receipt.logs.find((log: ethers.Log) => {
-            try {
-                const parsedLog = contract.interface.parseLog({ ...log, topics: log.topics as string[] });
-                return parsedLog?.name === 'AttestationCreated';
-            } catch {
-                return false;
-            }
-        });
+        const attestationCreatedEvent = contract.interface.getEvent('AttestationCreated');
+        if (!attestationCreatedEvent) {
+            throw new Error('AttestationCreated event not found in contract ABI');
+        }
+        const eventTopic = ethers.id(attestationCreatedEvent.format('sighash'));
+        const log = receipt.logs.find(log => log.topics[0] === eventTopic);
 
-        if (!event) {
-            throw new Error('AttestationCreated event not found');
+        if (!log) {
+            throw new Error('AttestationCreated event not found in transaction logs');
         }
 
-        const parsedEvent = contract.interface.parseLog({ ...event, topics: event.topics as string[] });
-        if (!parsedEvent) {
+        const parsedLog = contract.interface.parseLog({
+            topics: log.topics as string[],
+            data: log.data
+        });
+
+        if (!parsedLog) {
             throw new Error('Failed to parse AttestationCreated event');
         }
 
-        const newAttestationAddress = parsedEvent.args.attestationAddress;
+        const newAttestationAddress = parsedLog.args.attestationAddress;
 
         if (!newAttestationAddress) {
             throw new Error('Failed to retrieve new attestation address');
@@ -88,5 +107,3 @@ export async function createAttestation(
         }
     }
 }
-
-// You can add more functions here to interact with the AttestationFactory if needed like: addAuthorizedAddress/Remove etc..

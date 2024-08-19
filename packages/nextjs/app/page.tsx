@@ -3,8 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import type { NextPage } from "next";
-import { useAccount } from "wagmi";
 import { BugAntIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+import { useAccount, useChainId, useWalletClient } from 'wagmi';
 import { generateNFTMetadataImage, NFTMetadata } from '../utils/dcl/generateMetadataImage';
 import axios from 'axios';
 import { ethers } from 'ethers';
@@ -12,6 +12,8 @@ import { createAttestation } from '../utils/dcl/contractInteraction';
 
 const Home: NextPage = () => {
   const { address: connectedAddress } = useAccount();
+  const chainId = useChainId();
+  const { data: walletClient } = useWalletClient();
   const [formData, setFormData] = useState({
     authorName: "",
     authorWallet: "",
@@ -26,7 +28,7 @@ const Home: NextPage = () => {
   const [ipfsUrls, setIpfsUrls] = useState({ metadata: '', resource: '' });
   const [smartContractAddress, setSmartContractAddress] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const [isTestingMode, setIsTestingMode] = useState(false);
+  const [isTestingMode, setIsTestingMode] = useState(true);
 
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -52,8 +54,9 @@ const Home: NextPage = () => {
       formData.append('file', new Blob([content], { type: 'application/json' }), 'metadata.json');
     }
 
-    console.log('api key: ', PINATA_API_KEY);
-    console.log('secret api key: ', PINATA_API_SECRET_KEY);
+    // console.log('api key: ', PINATA_API_KEY);
+    // console.log('secret api key: ', PINATA_API_SECRET_KEY);
+    console.log('Uploading content to IPFS.......');
     try {
       const response = await axios.post(url, formData, {
         headers: {
@@ -79,11 +82,28 @@ const Home: NextPage = () => {
       return;
     }
 
-    // Upload resource file
-    const resourceUrl = await uploadToPinata(file);
-    if (!resourceUrl) {
-      alert('Failed to upload resource to Pinata/IPFS');
+    if (!walletClient) {
+      setError("No wallet connected. Please connect your wallet.");
       return;
+    }
+
+    if (isTestingMode && chainId !== 11155111) { // Sepolia chain ID
+      setError("Testing mode detected, Please connect to the Sepolia network");
+      return;
+    }
+
+    // Upload resource file
+    let resourceUrl = '';
+    if (isTestingMode) {
+      // Use dummy IPFS hash for testing
+      resourceUrl = 'QmTestHash1234567890TestHash1234567890TestHash00';
+    } else {
+      // Perform actual IPFS upload
+      const uploadResult = await uploadToPinata(file);
+      if (uploadResult === null) {
+        throw new Error('Failed to upload resource to IPFS/Pinata');
+      }
+      resourceUrl = uploadResult;
     }
 
     // Prepare metadata
@@ -160,6 +180,7 @@ const Home: NextPage = () => {
     alert('Successfully uploaded to IPFS/Pinata!');
 
     // Prepare data for smart contract interaction
+    console.log('Prepare data for smart contract interaction');
     const authors = formData.authorWallet ? formData.authorWallet.split(',').map(t => t.trim()) : [];//[formData.authorWallet || connectedAddress || ''];
     const contributors = formData.contributors
       ? formData.contributors.split(',').map(c => c.split(':')[1].trim())
@@ -169,13 +190,21 @@ const Home: NextPage = () => {
       ? [formData.existingWorkId]
       : [];
     const tags = formData.tags ? formData.tags.split(',').map(t => t.trim()) : [];
+    console.log('Prepararation DONE!');
 
-    // Get the Ethereum provider
-    const provider = new ethers.BrowserProvider(window.ethereum);
+    // Do i really need this ? - if still error recreate talk with claude and copy initial adjusted prompt
+    // console.log("Requesting account access...");
+    // try {
+    //   await window.ethereum.request({ method: 'eth_requestAccounts' });
+    //   console.log("Account access granted");
+    // } catch (error) {
+    //   console.error("Error requesting account access:", error);
+    //   throw new Error("Failed to get account access. Please ensure your wallet is connected.");
+    // }
 
     // Create the attestation using AttestationFactory
     const newAttestationAddress = await createAttestation(
-      provider,
+      walletClient,
       authors,
       contributors,
       ipfsHash,
@@ -185,8 +214,6 @@ const Home: NextPage = () => {
     );
 
     setSmartContractAddress(newAttestationAddress);
-
-
     alert('Attestation contract successfully deployed onchain :)');
 
   };
@@ -259,7 +286,7 @@ const Home: NextPage = () => {
             onChange={handleChange}
             className="input input-bordered w-full"
           />
-          <label className="font-semibold">Co-Publish Amount Fees:</label>
+          <label className="font-semibold">Co-Publish Amount Fees (in Eth):</label>
           <input
             name="coPublishThreshold"
             type="number"
