@@ -7,8 +7,11 @@ import { BugAntIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { useAccount, useChainId, useWalletClient } from 'wagmi';
 import { generateNFTMetadataImage, NFTMetadata } from '../utils/dcl/generateMetadataImage';
 import axios from 'axios';
-import { ethers } from 'ethers';
+// import { ethers } from 'ethers';
 import { createAttestation } from '../utils/dcl/contractInteraction';
+import { verifyAttestation } from '../utils/dcl/verifyAttestation';
+
+const mainRegistryAddress = "0xa8f3Ec9865196a96d4C157A7965fAfF7ed46Ee97"; //smartcontract address deployed on Sepolia
 
 const Home: NextPage = () => {
   const { address: connectedAddress } = useAccount();
@@ -29,7 +32,7 @@ const Home: NextPage = () => {
   const [smartContractAddress, setSmartContractAddress] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isTestingMode, setIsTestingMode] = useState(true);
-
+  const [isVerifying, setIsVerifying] = useState(true);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -45,8 +48,8 @@ const Home: NextPage = () => {
   const uploadToPinata = async (content: File | string): Promise<string | null> => {
     const url = `https://api.pinata.cloud/pinning/pinFileToIPFS`;
     const formData = new FormData();
-    const PINATA_API_KEY = '5127f9990bebd3e94bf4';
-    const PINATA_API_SECRET_KEY = 'e26a52cbb2596abafcb53096b665f5aedf78ba8b72d3a0df5ab5facfb6c1bb1b';
+    const PINATA_API_KEY = '5127f9990bebd3e94bf4'; //to hide in porcess.env!!!
+    const PINATA_API_SECRET_KEY = 'e26a52cbb2596abafcb53096b665f5aedf78ba8b72d3a0df5ab5facfb6c1bb1b'; //to hide in porcess.env!!!
 
     if (content instanceof File) {
       formData.append('file', content);
@@ -192,16 +195,6 @@ const Home: NextPage = () => {
     const tags = formData.tags ? formData.tags.split(',').map(t => t.trim()) : [];
     console.log('Prepararation DONE!');
 
-    // Do i really need this ? - if still error recreate talk with claude and copy initial adjusted prompt
-    // console.log("Requesting account access...");
-    // try {
-    //   await window.ethereum.request({ method: 'eth_requestAccounts' });
-    //   console.log("Account access granted");
-    // } catch (error) {
-    //   console.error("Error requesting account access:", error);
-    //   throw new Error("Failed to get account access. Please ensure your wallet is connected.");
-    // }
-
     // Create the attestation using AttestationFactory
     const newAttestationAddress = await createAttestation(
       walletClient,
@@ -213,9 +206,39 @@ const Home: NextPage = () => {
       formData.coPublishThreshold
     );
 
+    //Verify The Created Attestation contract
+    const handleVerification = async (contractAddress: string) => {
+      setIsVerifying(true);
+      try {
+        const success = await verifyAttestation(
+          contractAddress,
+          mainRegistryAddress,
+          authors,
+          contributors,
+          ipfsHash,
+          quotedAttestationId,
+          tags,
+          formData.coPublishThreshold
+        );
+
+        if (success) {
+          alert('Contract verified successfully!');
+        } else {
+          throw new Error('Verification failed');
+        }
+      } catch (error) {
+        console.error('Error verifying contract:', error);
+        setError('Failed to verify contract. Please check the console for more details.');
+      } finally {
+        setIsVerifying(false);
+      }
+    };
+
     setSmartContractAddress(newAttestationAddress);
     alert('Attestation contract successfully deployed onchain :)');
-
+    if (isVerifying) {
+      await handleVerification(newAttestationAddress);
+    }
   };
 
 
