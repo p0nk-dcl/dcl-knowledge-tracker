@@ -33,6 +33,7 @@ const Home: NextPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [isTestingMode, setIsTestingMode] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+  const [verificationStatus, setVerificationStatus] = useState<string>('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -197,6 +198,7 @@ const Home: NextPage = () => {
     const tags = formData.tags ? formData.tags.split(',').map(t => t.trim()) : [];
     console.log('Prepararation DONE!');
 
+    setVerificationStatus('Attestation is being deployed on chain. It may take a few minutes to complete...');
     // Create the attestation using AttestationFactory
     const newAttestationAddress = await createAttestation(
       walletClient,
@@ -348,7 +350,11 @@ const Home: NextPage = () => {
           </div>
         )}
       </div>
-
+      {verificationStatus && (
+        <div className="mt-4 p-4 bg-blue-100 text-blue-700 rounded">
+          {verificationStatus}
+        </div>
+      )}
       <div className="flex-grow w-full mt-16 px-8 py-12">
         <div className="flex justify-center items-center gap-12 flex-col sm:flex-row">
           <div className="flex flex-col px-10 py-10 text-center items-center max-w-xs rounded-3xl">

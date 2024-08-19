@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import AttestationFactoryABI from '../../../hardhat/artifacts/contracts/AttestationFactory.sol/AttestationFactory.json';
-import { verifyContract } from '../../services/dcl/contractVerification';
+import { verifyContract, checkVerificationStatus } from '../../services/dcl/contractVerification';
 const attestationFactoryAddress = "0xe06D5F27bB990Ce83002F2B97F651BA1899d9eE0";
 const mainRegistryAddress = "0xa8f3Ec9865196a96d4C157A7965fAfF7ed46Ee97";
 
@@ -124,8 +124,25 @@ export async function createAttestation(
             constructorArguments: constructorArgs
         });
 
+        if (isVerified) {
+            console.log('Verification submission successful. GUID:', isVerified);
+            console.log('Checking verification status...');
 
-        if (!isVerified) {
+            // Check status every 30 seconds for up to 5 minutes
+            for (let i = 0; i < 10; i++) {
+                await delay(30000);
+                const status = await checkVerificationStatus(isVerified);
+                console.log('Verification status:', status);
+                if (status === 'Pass') {
+                    console.log('Contract verified successfully!');
+                    break;
+                } else if (status === 'Fail') {
+                    console.log('Contract verification failed.');
+                    break;
+                }
+                // If status is 'Pending', continue checking
+            }
+        } else {
             console.warn('Contract verification failed. The contract is deployed but not verified.');
         }
 
