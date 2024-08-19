@@ -29,11 +29,14 @@ const Home: NextPage = () => {
   });
   const [file, setFile] = useState<File | null>(null);
   const [ipfsUrls, setIpfsUrls] = useState({ metadata: '', resource: '' });
-  const [smartContractAddress, setSmartContractAddress] = useState('');
+
+  const [smartContractAddress, setSmartContractAddress] = useState<string>('');
+  const [verificationStatus, setVerificationStatus] = useState<'Pass' | 'Fail' | 'Pending'>('Pending');
+
   const [error, setError] = useState<string | null>(null);
   const [isTestingMode, setIsTestingMode] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
-  const [verificationStatus, setVerificationStatus] = useState<string>('');
+
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -81,6 +84,7 @@ const Home: NextPage = () => {
     e.preventDefault();
     setError(null);
     setIsLoading(true);
+    setVerificationStatus('Pending');
 
     if (!file) {
       alert('Please select a file to upload');
@@ -198,7 +202,7 @@ const Home: NextPage = () => {
     const tags = formData.tags ? formData.tags.split(',').map(t => t.trim()) : [];
     console.log('Prepararation DONE!');
 
-    setVerificationStatus('Attestation is being deployed on chain. It may take a few minutes to complete...');
+    alert('Attestation is being deployed on chain. It may take a few minutes to complete...');
     // Create the attestation using AttestationFactory
     const newAttestationAddress = await createAttestation(
       walletClient,
@@ -210,9 +214,18 @@ const Home: NextPage = () => {
       formData.coPublishThreshold
     );
 
-    setSmartContractAddress(newAttestationAddress);
+    setSmartContractAddress(newAttestationAddress.address);
+    setVerificationStatus(newAttestationAddress.verificationStatus);
     setIsLoading(false);
-    alert('Attestation contract successfully deployed onchain :)');
+
+    if (newAttestationAddress.verificationStatus === 'Pass') {
+      alert('Attestation contract successfully deployed and verified onchain :)');
+    } else if (newAttestationAddress.verificationStatus === 'Fail') {
+      alert('Attestation contract deployed but verification failed. Please check Etherscan for details.');
+    } else {
+      alert('Attestation contract deployed. Verification is still pending. Please check Etherscan for the final status.');
+    }
+
   };
 
 

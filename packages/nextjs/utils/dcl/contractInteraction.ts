@@ -1,8 +1,10 @@
 import { ethers } from 'ethers';
 import AttestationFactoryABI from '../../../hardhat/artifacts/contracts/AttestationFactory.sol/AttestationFactory.json';
 import { verifyContract, checkVerificationStatus } from '../../services/dcl/contractVerification';
-const attestationFactoryAddress = "0xe06D5F27bB990Ce83002F2B97F651BA1899d9eE0";
-const mainRegistryAddress = "0xa8f3Ec9865196a96d4C157A7965fAfF7ed46Ee97";
+const attestationFactoryAddress = "0xe06D5F27bB990Ce83002F2B97F651BA1899d9eE0"; //to replace when go mainnet
+const mainRegistryAddress = "0xa8f3Ec9865196a96d4C157A7965fAfF7ed46Ee97"; //to replace when go mainnet
+const MAX_VERIFICATION_TIME = 5 * 60 * 1000; // 5 minutes in milliseconds
+const CHECK_INTERVAL = 30 * 1000; // 30 seconds in milliseconds
 
 interface WalletClient {
     account: { address: string };
@@ -30,7 +32,7 @@ export async function createAttestation(
     quotedAttestationId: string[],
     tags: string[],
     coPublishThreshold: string
-): Promise<string> {
+): Promise<{ address: string; verificationStatus: 'Pass' | 'Fail' | 'Pending' }> {
     try {
         console.log("Starting createAttestation function");
 
@@ -124,28 +126,28 @@ export async function createAttestation(
             constructorArguments: constructorArgs
         });
 
-        if (isVerified) {
+        let finalStatus: 'Pass' | 'Fail' | 'Pending' = 'Pending';
+
+        if (typeof isVerified === 'string') {
             console.log('Verification submission successful. GUID:', isVerified);
             console.log('Checking verification status...');
 
             // Check status every 30 seconds for up to 5 minutes
-            for (let i = 0; i < 10; i++) {
-                await delay(30000);
+            const startTime = Date.now();
+            while (Date.now() - startTime < MAX_VERIFICATION_TIME) {
                 const status = await checkVerificationStatus(isVerified);
                 console.log('Verification status:', status);
-                if (status === 'Pass') {
-                    console.log('Contract verified successfully!');
-                    break;
-                } else if (status === 'Fail') {
-                    console.log('Contract verification failed.');
+                if (status === 'Pass' || status === 'Fail') {
+                    finalStatus = status;
                     break;
                 }
-                // If status is 'Pending', continue checking
+                await delay(CHECK_INTERVAL);
             }
         } else {
-            console.warn('Contract verification failed. The contract is deployed but not verified.');
+            console.warn('Contract verification submission failed.');
+            finalStatus = 'Fail';
         }
-
+        console.log('Final verification status:', finalStatus);
         return newAttestationAddress;
 
     } catch (error: unknown) {
