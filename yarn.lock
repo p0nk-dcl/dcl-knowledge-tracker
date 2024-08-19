@@ -1490,7 +1490,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nomicfoundation/ethereumjs-util@npm:9.0.4":
+"@nomicfoundation/ethereumjs-util@npm:9.0.4, @nomicfoundation/ethereumjs-util@npm:^9.0.4":
   version: 9.0.4
   resolution: "@nomicfoundation/ethereumjs-util@npm:9.0.4"
   dependencies:
@@ -2382,21 +2382,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/query-core@npm:5.51.21":
-  version: 5.51.21
-  resolution: "@tanstack/query-core@npm:5.51.21"
-  checksum: a602e70bfbfa1fa28333be8c1b9ac9c9b97937b236d3997a757079ae04086fe59c2688cb6406fd82dcf9ef07f73e7a4ba1d373040f6cad340e1f64bceafe0e07
+"@tanstack/query-core@npm:5.51.24":
+  version: 5.51.24
+  resolution: "@tanstack/query-core@npm:5.51.24"
+  checksum: 5404604bf60a7d9880d33296da5316cd4087ff64f0d4afcd77facdbe1d5ca7a3770a1309a1f2202d3896ad6b0b807b4e0d17411d678bc4febe0577038102d40d
   languageName: node
   linkType: hard
 
 "@tanstack/react-query@npm:^5.28.6":
-  version: 5.51.23
-  resolution: "@tanstack/react-query@npm:5.51.23"
+  version: 5.51.24
+  resolution: "@tanstack/react-query@npm:5.51.24"
   dependencies:
-    "@tanstack/query-core": 5.51.21
+    "@tanstack/query-core": 5.51.24
   peerDependencies:
     react: ^18.0.0
-  checksum: d1d8131232430635923694befff9bdabc8d18ca2392789456a28191020d489671577e02ee5b0107e0064fea981c74c99cea3077a4e34cc1ac7438175bd50effe
+  checksum: 2aeb27d7f4965ca62baa30237948728bfc34689a78df912c367f322457715d2feca6e634b0b9b63851f96df8c0abce97b93803bcee67d6fdf56744d7292bd2f2
   languageName: node
   linkType: hard
 
@@ -5809,13 +5809,13 @@ __metadata:
   linkType: hard
 
 "eciesjs@npm:^0.3.15":
-  version: 0.3.19
-  resolution: "eciesjs@npm:0.3.19"
+  version: 0.3.20
+  resolution: "eciesjs@npm:0.3.20"
   dependencies:
     "@types/secp256k1": ^4.0.6
     futoin-hkdf: ^1.5.3
     secp256k1: ^5.0.0
-  checksum: 29d2cafcac452ae7086048cebeedf7b4307caf4a8e916120d0314e6da2076f2d1763b7f6a1916c6526fb78f0eb5e394d7dd0654c9a8bfe59252d242adb4830b2
+  checksum: 449e56a4e5ce812313c38d876d5874f8b5740750288de4f1059ea1016716ceb006cba6b3126c08aafd3bcdc5c1ad8d6ca67e44bc2f434bb01ed14040aa067e47
   languageName: node
   linkType: hard
 
@@ -11931,6 +11931,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "se-2@workspace:."
   dependencies:
+    "@nomicfoundation/ethereumjs-util": ^9.0.4
     "@nomicfoundation/hardhat-verify": ^2.0.9
     "@svgdotjs/svg.js": ^3.2.4
     "@types/svgdom": ^0.1.2

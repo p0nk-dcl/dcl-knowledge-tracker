@@ -1,7 +1,8 @@
 import { ethers } from 'ethers';
 import AttestationFactoryABI from '../../../hardhat/artifacts/contracts/AttestationFactory.sol/AttestationFactory.json';
-
+import { verifyContract } from '../../services/dcl/contractVerification';
 const attestationFactoryAddress = "0xe06D5F27bB990Ce83002F2B97F651BA1899d9eE0";
+const mainRegistryAddress = "0xa8f3Ec9865196a96d4C157A7965fAfF7ed46Ee97";
 
 interface WalletClient {
     account: { address: string };
@@ -18,6 +19,8 @@ async function walletClientToEthersProvider(walletClient: WalletClient) {
     const provider = new ethers.BrowserProvider(walletClient.transport, network);
     return provider;
 }
+
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 export async function createAttestation(
     walletClient: WalletClient,
@@ -97,7 +100,37 @@ export async function createAttestation(
             throw new Error('Failed to retrieve new attestation address');
         }
 
+        console.log('New Attestation Address:', newAttestationAddress);
+
+        // Add a delay before verification (e.g., 30 seconds)
+        console.log('Waiting for 30 seconds before attempting verification...');
+        await delay(30000);
+
+        // Prepare constructor arguments for verification
+        const constructorArgs = [
+            mainRegistryAddress,
+            authors,
+            contributors,
+            ipfsHash,
+            quotedAttestationId.map(id => BigInt(id)),
+            tags,
+            ethers.parseEther(coPublishThreshold),
+            ethers.parseEther("0.05") // _verificationThreshold
+        ];
+
+        // Verify the newly created contract
+        const isVerified = await verifyContract({
+            address: newAttestationAddress,
+            constructorArguments: constructorArgs
+        });
+
+
+        if (!isVerified) {
+            console.warn('Contract verification failed. The contract is deployed but not verified.');
+        }
+
         return newAttestationAddress;
+
     } catch (error: unknown) {
         console.error('Error creating attestation:', error);
         if (error instanceof Error) {

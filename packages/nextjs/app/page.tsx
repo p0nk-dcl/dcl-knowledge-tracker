@@ -7,9 +7,9 @@ import { BugAntIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { useAccount, useChainId, useWalletClient } from 'wagmi';
 import { generateNFTMetadataImage, NFTMetadata } from '../utils/dcl/generateMetadataImage';
 import axios from 'axios';
-// import { ethers } from 'ethers';
+import { ethers } from 'ethers';
 import { createAttestation } from '../utils/dcl/contractInteraction';
-import { verifyAttestation } from '../utils/dcl/verifyAttestation';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 const mainRegistryAddress = "0xa8f3Ec9865196a96d4C157A7965fAfF7ed46Ee97"; //smartcontract address deployed on Sepolia
 
@@ -32,7 +32,7 @@ const Home: NextPage = () => {
   const [smartContractAddress, setSmartContractAddress] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isTestingMode, setIsTestingMode] = useState(true);
-  const [isVerifying, setIsVerifying] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -79,9 +79,11 @@ const Home: NextPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setIsLoading(true);
 
     if (!file) {
       alert('Please select a file to upload');
+      setIsLoading(false);
       return;
     }
 
@@ -206,39 +208,9 @@ const Home: NextPage = () => {
       formData.coPublishThreshold
     );
 
-    //Verify The Created Attestation contract
-    const handleVerification = async (contractAddress: string) => {
-      setIsVerifying(true);
-      try {
-        const success = await verifyAttestation(
-          contractAddress,
-          mainRegistryAddress,
-          authors,
-          contributors,
-          ipfsHash,
-          quotedAttestationId,
-          tags,
-          formData.coPublishThreshold
-        );
-
-        if (success) {
-          alert('Contract verified successfully!');
-        } else {
-          throw new Error('Verification failed');
-        }
-      } catch (error) {
-        console.error('Error verifying contract:', error);
-        setError('Failed to verify contract. Please check the console for more details.');
-      } finally {
-        setIsVerifying(false);
-      }
-    };
-
     setSmartContractAddress(newAttestationAddress);
+    setIsLoading(false);
     alert('Attestation contract successfully deployed onchain :)');
-    if (isVerifying) {
-      await handleVerification(newAttestationAddress);
-    }
   };
 
 
@@ -346,6 +318,7 @@ const Home: NextPage = () => {
 
           <button type="submit" className="btn btn-primary w-full">Submit</button>
         </form>
+        {isLoading && <LoadingSpinner />}
         {(ipfsUrls.metadata || ipfsUrls.resource || smartContractAddress) && (
           <div className="w-full max-w-lg p-6 bg-blue-50 rounded-lg shadow-md">
             <h2 className="text-2xl font-bold mb-4 text-blue-800">Upload Information</h2>
@@ -370,7 +343,8 @@ const Home: NextPage = () => {
                 <strong>Smart Contract Address:</strong>
                 <span className="ml-2">{smartContractAddress}</span>
               </p>
-            )}
+            )
+            }
           </div>
         )}
       </div>
