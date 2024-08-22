@@ -1,15 +1,10 @@
-
-//import AttestationABI from '../../hardhat/artifacts/contracts/AttestationFactory.sol/Attestation.json';
-//from '../utils/dcl/contractInteractionUtils';
-//--------------------------------------------------------------
-// "use client";
-
 "use client";
 
 import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { ethers } from 'ethers';
 import { useAccount, useChainId, useWalletClient } from 'wagmi';
+import AttestationQRCode from './AttestationQRCode';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -35,35 +30,38 @@ export default function AttestationViewer({ params }: { params: { address?: stri
     const [error, setError] = useState<string | null>(null);
     const [graphData, setGraphData] = useState<{ nodes: any[], links: any[] }>({ nodes: [], links: [] });
     const [isBrowser, setIsBrowser] = useState(false);
+    const [provider, setProvider] = useState<ethers.Provider | null>(null);
     const pathname = usePathname();
 
     useEffect(() => {
         setIsBrowser(true);
         if (params.address) {
             setAttestationAddress(params.address);
-            fetchAttestationData(params.address);
         }
     }, [params.address]);
 
-    // Function to get the full URL for the attestation
-    const getAttestationUrl = () => {
-        if (typeof window !== 'undefined') {
-            const baseUrl = window.location.origin; // This will be http://localhost:3000 in development and your actual domain in production
-            return `${baseUrl}${pathname}/${attestationAddress}`;
+    useEffect(() => {
+        async function setupProvider() {
+            if (walletClient) {
+                try {
+                    const newProvider = await walletClientToEthersProvider(walletClient);
+                    setProvider(newProvider);
+                    if (attestationAddress) {
+                        fetchAttestationData(attestationAddress, newProvider);
+                    }
+                } catch (err) {
+                    console.error('Error setting up provider:', err);
+                    setError('Error setting up provider');
+                }
+            }
         }
-        return '';
-    };
 
+        setupProvider();
+    }, [walletClient, attestationAddress]);
 
-    const fetchAttestationData = async (address: string) => {
-        if (!walletClient) {
-            setError("No wallet connected. Please connect your wallet.");
-            return;
-        }
-
+    const fetchAttestationData = async (address: string, currentProvider: ethers.Provider) => {
         try {
-            const provider = await walletClientToEthersProvider(walletClient);
-            const data = await getAttestationData(address, provider);
+            const data = await getAttestationData(address, currentProvider);
             setAttestationData(data);
             generateGraphData(data, address);
         } catch (err) {
@@ -73,30 +71,44 @@ export default function AttestationViewer({ params }: { params: { address?: stri
     };
 
     const generateGraphData = (data: AttestationData, address: string) => {
-        const nodes = [
-            { id: address, group: 1, label: 'Current Attestation' },
-            ...data.authors.map((author: string, i: number) => ({ id: author, group: 2, label: `Author ${i + 1}` })),
-            ...data.contributors.map((contributor: string, i: number) => ({ id: contributor, group: 3, label: `Contributor ${i + 1}` })),
-            ...data.copublishers.map((copublisher: string, i: number) => ({ id: copublisher, group: 3, label: `Copublisher ${i + 1}` })),
-            ...data.tags.map((tag: string, i: number) => ({ id: tag, group: 3, label: `tags ${i + 1}` })),
-            ...data.quotedAttestationIds.map((id: string, i: number) => ({ id, group: 4, label: `Quoted Attestation ${i + 1}` })),
-        ];
+        const nodeMap = new Map();
 
+        // Function to add a node if it doesn't exist
+        const addNode = (id: string, group: number, label: string) => {
+            if (!nodeMap.has(id)) {
+                nodeMap.set(id, { id, group, label });
+            }
+        };
+
+        // Add current attestation
+        addNode(address, 1, 'Current Attestation');
+
+        // Add other nodes
+        data.authors.forEach((author, i) => addNode(author, 2, `Author ${i + 1}`));
+        data.contributors.forEach((contributor, i) => addNode(contributor, 3, `Contributor ${i + 1}`));
+        data.copublishers.forEach((copublisher, i) => addNode(copublisher, 4, `Copublisher ${i + 1}`));
+        data.tags.forEach((tag) => addNode(tag, 5, `Tag: ${tag}`));
+        data.quotedAttestationIds.forEach((id, i) => addNode(id, 6, `Quoted Attestation ${i + 1}`));
+
+        // Create links only between existing nodes
         const links = [
-            ...data.authors.map((author: string) => ({ source: address, target: author })),
-            ...data.contributors.map((contributor: string) => ({ source: address, target: contributor })),
-            ...data.copublishers.map((copublisher: string, i: number) => ({ id: copublisher, group: 3, label: `Copublisher ${i + 1}` })),
-            ...data.tags.map((tag: string, i: number) => ({ id: tag, group: 3, label: `tags ${i + 1}` })),
-            ...data.quotedAttestationIds.map((id: string) => ({ source: address, target: id })),
-        ];
+            ...data.authors.map((author) => ({ source: address, target: author })),
+            ...data.contributors.map((contributor) => ({ source: address, target: contributor })),
+            ...data.copublishers.map((copublisher) => ({ source: address, target: copublisher })),
+            ...data.tags.map((tag) => ({ source: address, target: tag })),
+            ...data.quotedAttestationIds.map((id) => ({ source: address, target: id })),
+        ].filter(link => nodeMap.has(link.source) && nodeMap.has(link.target));
 
-        setGraphData({ nodes, links });
+        setGraphData({
+            nodes: Array.from(nodeMap.values()),
+            links
+        });
     };
 
     const handleAddressSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        if (attestationAddress) {
-            fetchAttestationData(attestationAddress);
+        if (attestationAddress && provider) {
+            fetchAttestationData(attestationAddress, provider);
         }
     };
 
@@ -104,9 +116,6 @@ export default function AttestationViewer({ params }: { params: { address?: stri
         if (!walletClient || !attestationAddress) return;
 
         try {
-            const provider = await walletClientToEthersProvider(walletClient);
-            const signer = await provider.getSigner(walletClient.account.address);
-
             switch (action) {
                 case 'changeThreshold':
                     const newThreshold = prompt('Enter new co-publish threshold (in ETH):');
@@ -120,7 +129,9 @@ export default function AttestationViewer({ params }: { params: { address?: stri
                     break;
             }
             // Refresh attestation data after action
-            fetchAttestationData(attestationAddress);
+            if (provider) {
+                fetchAttestationData(attestationAddress, provider);
+            }
         } catch (err) {
             console.error(err);
             setError(`Error performing ${action}`);
@@ -141,7 +152,9 @@ export default function AttestationViewer({ params }: { params: { address?: stri
                     break;
             }
             // Refresh attestation data after action
-            fetchAttestationData(attestationAddress);
+            if (provider) {
+                fetchAttestationData(attestationAddress, provider);
+            }
         } catch (err) {
             console.error(err);
             setError(`Error performing ${action}`);
@@ -175,7 +188,7 @@ export default function AttestationViewer({ params }: { params: { address?: stri
                     <div className="w-full md:w-1/2">
                         <h2 className="text-2xl font-semibold mb-4">Attestation Details</h2>
                         <div className="bg-gray-100 p-4 rounded">
-                            <p><strong>is Activated:</strong> {attestationData.isActivated}</p>
+                            <p><strong>Is Activated:</strong> {attestationData.isActivated !== undefined ? attestationData.isActivated.toString() : 'Unknown'}</p>
                             <p><strong>Authors:</strong> {attestationData.authors.join(', ')}</p>
                             <p><strong>Contributors:</strong> {attestationData.contributors.join(', ')}</p>
                             <p><strong>Copublishers:</strong> {attestationData.copublishers.join(', ')}</p>
@@ -193,7 +206,9 @@ export default function AttestationViewer({ params }: { params: { address?: stri
                         </div>
 
                         <h3 className="text-xl font-semibold mt-6 mb-2">QR Code</h3>
-                        {isBrowser && <QRCode value={getAttestationUrl()} />}
+                        {isBrowser && provider && (
+                            <AttestationQRCode attestationAddress={attestationAddress} provider={provider} />
+                        )}
 
                         <h3 className="text-xl font-semibold mt-6 mb-2">Actions</h3>
                         <div className="space-y-2">
