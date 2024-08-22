@@ -32,6 +32,7 @@ export default function AttestationViewer({ params }: { params: { address?: stri
     const [isBrowser, setIsBrowser] = useState(false);
     const [provider, setProvider] = useState<ethers.Provider | null>(null);
     const pathname = usePathname();
+    const [ipfsContent, setIpfsContent] = useState<any>(null);
 
     useEffect(() => {
         setIsBrowser(true);
@@ -69,6 +70,21 @@ export default function AttestationViewer({ params }: { params: { address?: stri
             console.error(err);
         }
     };
+
+    useEffect(() => {
+        async function fetchIPFSData() {
+            if (attestationData && attestationData.ipfsHash) {
+                try {
+                    const response = await fetch(`https://ipfs.io/ipfs/${attestationData.ipfsHash}`);
+                    const data = await response.json();
+                    setIpfsContent(data);
+                } catch (error) {
+                    console.error('Error fetching IPFS content:', error);
+                }
+            }
+        }
+        fetchIPFSData();
+    }, [attestationData]);
 
     const generateGraphData = (data: AttestationData, address: string) => {
         const nodeMap = new Map();
@@ -183,18 +199,24 @@ export default function AttestationViewer({ params }: { params: { address?: stri
 
             {error && <p className="text-red-500 mb-4">{error}</p>}
 
-            {attestationData && (
+            {attestationData && ipfsContent && (
                 <div className="flex flex-col md:flex-row gap-8">
                     <div className="w-full md:w-1/2">
                         <h2 className="text-2xl font-semibold mb-4">Attestation Details</h2>
                         <div className="bg-gray-100 p-4 rounded">
                             <p><strong>Is Activated:</strong> {attestationData.isActivated !== undefined ? attestationData.isActivated.toString() : 'Unknown'}</p>
-                            <p><strong>Authors:</strong> {attestationData.authors.join(', ')}</p>
-                            <p><strong>Contributors:</strong> {attestationData.contributors.join(', ')}</p>
-                            <p><strong>Copublishers:</strong> {attestationData.copublishers.join(', ')}</p>
+                            <p><strong>Author:</strong> {ipfsContent.authorName} ({ipfsContent.authorWallet})</p>
+                            <p><strong>Title:</strong> {ipfsContent.title}</p>
+                            <p><strong>Contributors:</strong> {ipfsContent.contributors}</p>
+                            <p><strong>Tags:</strong> {ipfsContent.tags}</p>
+                            <p><strong>Co-publisher Fees:</strong> {ipfsContent.copublisherFees} ETH</p>
+                            <p><strong>URL:</strong> <a href={ipfsContent.url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">{ipfsContent.url}</a></p>
+                            <p><strong>Existing Work ID:</strong> {ipfsContent.existingWorkId}</p>
+                            <p><strong>Media Type:</strong> {ipfsContent.mediaType}</p>
+                            <p><strong>Media URL:</strong> <a href={ipfsContent.mediaUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">View Media</a></p>
+                            <p><strong>Created At:</strong> {new Date(ipfsContent.createdAt).toLocaleString()}</p>
                             <p><strong>IPFS Hash:</strong> {attestationData.ipfsHash}</p>
                             <p><strong>Quoted Attestation IDs:</strong> {attestationData.quotedAttestationIds.join(', ')}</p>
-                            <p><strong>Tags:</strong> {attestationData.tags.join(', ')}</p>
                             <p><strong>Co-publish Threshold:</strong> {ethers.formatEther(attestationData.coPublishThreshold)} ETH</p>
                         </div>
 
