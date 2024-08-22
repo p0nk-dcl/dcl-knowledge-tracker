@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import { ethers } from 'ethers';
 import { useAccount, useChainId, useWalletClient } from 'wagmi';
@@ -33,6 +33,7 @@ export default function AttestationViewer({ params }: { params: { address?: stri
     const [provider, setProvider] = useState<ethers.Provider | null>(null);
     const pathname = usePathname();
     const [ipfsContent, setIpfsContent] = useState<any>(null);
+    const [hoveredNode, setHoveredNode] = useState<any>(null);
 
     useEffect(() => {
         setIsBrowser(true);
@@ -85,41 +86,6 @@ export default function AttestationViewer({ params }: { params: { address?: stri
         }
         fetchIPFSData();
     }, [attestationData]);
-
-    const generateGraphData = (data: AttestationData, address: string) => {
-        const nodeMap = new Map();
-
-        // Function to add a node if it doesn't exist
-        const addNode = (id: string, group: number, label: string) => {
-            if (!nodeMap.has(id)) {
-                nodeMap.set(id, { id, group, label });
-            }
-        };
-
-        // Add current attestation
-        addNode(address, 1, 'Current Attestation');
-
-        // Add other nodes
-        data.authors.forEach((author, i) => addNode(author, 2, `Author ${i + 1}`));
-        data.contributors.forEach((contributor, i) => addNode(contributor, 3, `Contributor ${i + 1}`));
-        data.copublishers.forEach((copublisher, i) => addNode(copublisher, 4, `Copublisher ${i + 1}`));
-        data.tags.forEach((tag) => addNode(tag, 5, `Tag: ${tag}`));
-        data.quotedAttestationIds.forEach((id, i) => addNode(id, 6, `Quoted Attestation ${i + 1}`));
-
-        // Create links only between existing nodes
-        const links = [
-            ...data.authors.map((author) => ({ source: address, target: author })),
-            ...data.contributors.map((contributor) => ({ source: address, target: contributor })),
-            ...data.copublishers.map((copublisher) => ({ source: address, target: copublisher })),
-            ...data.tags.map((tag) => ({ source: address, target: tag })),
-            ...data.quotedAttestationIds.map((id) => ({ source: address, target: id })),
-        ].filter(link => nodeMap.has(link.source) && nodeMap.has(link.target));
-
-        setGraphData({
-            nodes: Array.from(nodeMap.values()),
-            links
-        });
-    };
 
     const handleAddressSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -176,6 +142,34 @@ export default function AttestationViewer({ params }: { params: { address?: stri
             setError(`Error performing ${action}`);
         }
     };
+
+    const generateGraphData = (data: AttestationData, address: string) => {
+        const nodes = [
+            {
+                id: address,
+                label: 'Current Attestation',
+                authors: data.authors,
+                contributors: data.contributors,
+                copublishers: data.copublishers,
+                tags: data.tags,
+            },
+            ...data.quotedAttestationIds.map((id: string) => ({
+                id,
+                label: `Quoted Attestation`,
+            }))
+        ];
+
+        const links = data.quotedAttestationIds.map((id: string) => ({
+            source: address,
+            target: id,
+        }));
+
+        setGraphData({ nodes, links });
+    };
+
+    const handleNodeHover = useCallback((node: any) => {
+        setHoveredNode(node);
+    }, []);
 
     return (
         <div className="container mx-auto px-4 py-8">
@@ -258,14 +252,43 @@ export default function AttestationViewer({ params }: { params: { address?: stri
 
                     <div className="w-full md:w-1/2">
                         <h2 className="text-2xl font-semibold mb-4">Attestation Map</h2>
-                        <div style={{ height: '500px', border: '1px solid #ccc' }}>
+                        <div style={{ height: '500px', border: '1px solid #ccc', position: 'relative' }}>
                             {isBrowser && (
-                                <ForceGraph2D
-                                    graphData={graphData}
-                                    nodeLabel="label"
-                                    nodeAutoColorBy="group"
-                                    linkDirectionalParticles={2}
-                                />
+                                <>
+                                    <ForceGraph2D
+                                        graphData={graphData}
+                                        nodeLabel="label"
+                                        nodeAutoColorBy="label"
+                                        linkDirectionalParticles={2}
+                                        onNodeHover={handleNodeHover}
+                                        nodeCanvasObject={(node: any, ctx, globalScale) => {
+                                            const label = node.label;
+                                            const fontSize = 12 / globalScale;
+                                            ctx.font = `${fontSize}px Sans-Serif`;
+                                            ctx.textAlign = 'center';
+                                            ctx.textBaseline = 'middle';
+                                            ctx.fillStyle = node.color;
+                                            ctx.fillText(label, node.x!, node.y!);
+                                        }}
+                                    />
+                                    {hoveredNode && (
+                                        <div style={{
+                                            position: 'absolute',
+                                            top: '10px',
+                                            left: '10px',
+                                            background: 'white',
+                                            padding: '10px',
+                                            borderRadius: '5px',
+                                            boxShadow: '0 0 10px rgba(0,0,0,0.1)'
+                                        }}>
+                                            <h3>{hoveredNode.label}</h3>
+                                            {hoveredNode.authors && <p>Authors: {hoveredNode.authors.join(', ')}</p>}
+                                            {hoveredNode.contributors && <p>Contributors: {hoveredNode.contributors.join(', ')}</p>}
+                                            {hoveredNode.copublishers && <p>Copublishers: {hoveredNode.copublishers.join(', ')}</p>}
+                                            {hoveredNode.tags && <p>Tags: {hoveredNode.tags.join(', ')}</p>}
+                                        </div>
+                                    )}
+                                </>
                             )}
                         </div>
                     </div>
