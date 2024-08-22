@@ -203,7 +203,8 @@ export default function AttestationViewer({ params }: { params: { address?: stri
                             <p><strong>Title:</strong> {ipfsContent.title}</p>
                             <p><strong>Contributors:</strong> {ipfsContent.contributors}</p>
                             <p><strong>Tags:</strong> {ipfsContent.tags}</p>
-                            <p><strong>Co-publisher Fees:</strong> {ipfsContent.copublisherFees} ETH</p>
+                            <p><strong>Co-publisher Initial Fees:</strong> {ipfsContent.copublisherFees} ETH</p>
+                            <p><strong>Co-publisher Current Fees:</strong> {ethers.formatEther(attestationData.coPublishThreshold)} ETH</p>
                             <p><strong>URL:</strong> <a href={ipfsContent.url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">{ipfsContent.url}</a></p>
                             <p><strong>Existing Work ID:</strong> {ipfsContent.existingWorkId}</p>
                             <p><strong>Media Type:</strong> {ipfsContent.mediaType}</p>
@@ -211,7 +212,7 @@ export default function AttestationViewer({ params }: { params: { address?: stri
                             <p><strong>Created At:</strong> {new Date(ipfsContent.createdAt).toLocaleString()}</p>
                             <p><strong>IPFS Hash:</strong> {attestationData.ipfsHash}</p>
                             <p><strong>Quoted Attestation IDs:</strong> {attestationData.quotedAttestationIds.join(', ')}</p>
-                            <p><strong>Co-publish Threshold:</strong> {ethers.formatEther(attestationData.coPublishThreshold)} ETH</p>
+                            <p><strong>Number of Likes:</strong> {new Number(attestationData.upvoteCount).toLocaleString()}</p>
                         </div>
 
                         <h3 className="text-xl font-semibold mt-6 mb-2">Content Preview</h3>

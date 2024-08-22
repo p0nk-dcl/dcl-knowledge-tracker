@@ -10,6 +10,7 @@ export interface AttestationData {
     tags: string[];
     coPublishThreshold: bigint;
     isActivated: boolean;
+    upvoteCount: bigint;
 }
 
 interface WalletClient {
@@ -44,6 +45,7 @@ export async function getAttestationData(
     const tags = await contract.getTags();
     const coPublishThreshold = await contract.coPublishThreshold();
     const isActivated = await contract.isActivated();
+    const upvoteCount = await contract.upvoteCount();
 
     // Construct and return the AttestationData object
     return {
@@ -54,7 +56,8 @@ export async function getAttestationData(
         quotedAttestationIds,
         tags,
         coPublishThreshold,
-        isActivated
+        isActivated,
+        upvoteCount
     };
 }
 
