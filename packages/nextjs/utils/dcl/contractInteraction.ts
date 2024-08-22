@@ -137,7 +137,7 @@ export async function createAttestation(
             while (Date.now() - startTime < MAX_VERIFICATION_TIME) {
                 const status = await checkVerificationStatus(isVerified);
                 console.log('Verification status:', status);
-                if (status === 'Pass' || status === 'Fail') {
+                if (status === 'Pass' || status === 'Fail' || 'Already Verified') {
                     finalStatus = status;
                     break;
                 }
