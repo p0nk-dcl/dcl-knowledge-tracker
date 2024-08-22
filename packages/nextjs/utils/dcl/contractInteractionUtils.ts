@@ -38,12 +38,12 @@ export async function getAttestationData(
     // Fetch all data fields
     const authors = await contract.getAuthors();
     const contributors = await contract.getContributors();
-    const copublishers = await contract.getCopublishers();
-    const ipfsHash = await contract.getIpfsHash();
-    const quotedAttestationIds = await contract.getQuotedAttestationIds();
+    const copublishers = await contract.getCoPublishers();
+    const ipfsHash = await contract.ipfsHash();
+    const quotedAttestationIds = await contract.getQuotesAttestationIds();
     const tags = await contract.getTags();
-    const coPublishThreshold = await contract.getCoPublishThreshold();
-    const isActivated = await contract.isSigned();
+    const coPublishThreshold = await contract.coPublishThreshold();
+    const isActivated = await contract.isActivated();
 
     // Construct and return the AttestationData object
     return {
