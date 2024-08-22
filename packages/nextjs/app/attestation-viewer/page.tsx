@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import { ethers } from 'ethers';
 import { useAccount, useChainId, useWalletClient } from 'wagmi';
@@ -18,7 +18,7 @@ import {
 } from '../../utils/dcl/contractInteractionUtils';
 
 // Dynamically import browser-dependent components
-const QRCode = dynamic(() => import('qrcode.react'), { ssr: false });
+// const QRCode = dynamic(() => import('qrcode.react'), { ssr: false });
 const ForceGraph2D = dynamic(() => import('react-force-graph-2d'), { ssr: false });
 
 export default function AttestationViewer({ params }: { params: { address?: string } }) {
@@ -34,6 +34,7 @@ export default function AttestationViewer({ params }: { params: { address?: stri
     const pathname = usePathname();
     const [ipfsContent, setIpfsContent] = useState<any>(null);
     const [hoveredNode, setHoveredNode] = useState<any>(null);
+    const graphRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         setIsBrowser(true);
@@ -253,7 +254,15 @@ export default function AttestationViewer({ params }: { params: { address?: stri
 
                     <div className="w-full md:w-1/2">
                         <h2 className="text-2xl font-semibold mb-4">Attestation Map</h2>
-                        <div style={{ height: '500px', border: '1px solid #ccc', position: 'relative' }}>
+                        <div
+                            ref={graphRef}
+                            style={{
+                                height: '500px',
+                                border: '1px solid #ccc',
+                                position: 'relative',
+                                overflow: 'hidden' // Prevent scrollbars
+                            }}
+                        >
                             {isBrowser && (
                                 <>
                                     <ForceGraph2D
@@ -271,6 +280,10 @@ export default function AttestationViewer({ params }: { params: { address?: stri
                                             ctx.fillStyle = node.color;
                                             ctx.fillText(label, node.x!, node.y!);
                                         }}
+                                        width={graphRef.current ? graphRef.current.clientWidth : undefined}
+                                        height={graphRef.current ? graphRef.current.clientHeight : undefined}
+                                        enableZoomInteraction={false} // Disable zoom
+                                        enablePanInteraction={false} // Disable pan
                                     />
                                     {hoveredNode && (
                                         <div style={{
