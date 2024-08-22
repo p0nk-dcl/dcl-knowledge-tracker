@@ -12,8 +12,8 @@ import {
     getAttestationData,
     changeCoPublishThreshold,
     signAttestation,
-    revokeAffiliation,
     likeAttestation,
+    revokeAffiliation,
     donateToAttestation
 } from '../../utils/dcl/contractInteractionUtils';
 

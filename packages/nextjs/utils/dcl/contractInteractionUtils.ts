@@ -68,7 +68,7 @@ export async function changeCoPublishThreshold(
     const signer = await provider.getSigner(walletClient.account.address);
     const contract = new ethers.Contract(attestationAddress, AttestationABI.abi, signer);
 
-    const txRequest = await contract.changeCoPublishThreshold.populateTransaction(
+    const txRequest = await contract.setCoPublishThreshold.populateTransaction(
         ethers.parseEther(newThreshold[0])
     );
 
@@ -124,7 +124,7 @@ export async function likeAttestation(
     const signer = await provider.getSigner(walletClient.account.address);
     const contract = new ethers.Contract(attestationAddress, AttestationABI.abi, signer);
 
-    const txRequest = await contract.like.populateTransaction();
+    const txRequest = await contract.upvote.populateTransaction();
 
     const txHash = await walletClient.sendTransaction({
         ...txRequest,

@@ -22,7 +22,7 @@ export default function AttestationQRCode({ attestationAddress, provider }: Atte
             try {
                 const attestationData = await getAttestationData(attestationAddress, provider);
                 const ipfsContent = await fetchIPFSContent(attestationData.ipfsHash);
-                setQrUrl(ipfsContent.metadata.url || `https://example.com/attestation/${attestationAddress}`);
+                setQrUrl(ipfsContent.image || `https://example.com/attestation/${attestationAddress}`);
             } catch (error) {
                 console.error('Error fetching attestation data:', error);
                 setQrUrl(`https://example.com/attestation/${attestationAddress}`);
