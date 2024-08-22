@@ -77,12 +77,16 @@ export default function AttestationViewer({ params }: { params: { address?: stri
             { id: address, group: 1, label: 'Current Attestation' },
             ...data.authors.map((author: string, i: number) => ({ id: author, group: 2, label: `Author ${i + 1}` })),
             ...data.contributors.map((contributor: string, i: number) => ({ id: contributor, group: 3, label: `Contributor ${i + 1}` })),
+            ...data.copublishers.map((copublisher: string, i: number) => ({ id: copublisher, group: 3, label: `Copublisher ${i + 1}` })),
+            ...data.tags.map((tag: string, i: number) => ({ id: tag, group: 3, label: `tags ${i + 1}` })),
             ...data.quotedAttestationIds.map((id: string, i: number) => ({ id, group: 4, label: `Quoted Attestation ${i + 1}` })),
         ];
 
         const links = [
             ...data.authors.map((author: string) => ({ source: address, target: author })),
             ...data.contributors.map((contributor: string) => ({ source: address, target: contributor })),
+            ...data.copublishers.map((copublisher: string, i: number) => ({ id: copublisher, group: 3, label: `Copublisher ${i + 1}` })),
+            ...data.tags.map((tag: string, i: number) => ({ id: tag, group: 3, label: `tags ${i + 1}` })),
             ...data.quotedAttestationIds.map((id: string) => ({ source: address, target: id })),
         ];
 
@@ -171,8 +175,10 @@ export default function AttestationViewer({ params }: { params: { address?: stri
                     <div className="w-full md:w-1/2">
                         <h2 className="text-2xl font-semibold mb-4">Attestation Details</h2>
                         <div className="bg-gray-100 p-4 rounded">
+                            <p><strong>is Activated:</strong> {attestationData.isActivated}</p>
                             <p><strong>Authors:</strong> {attestationData.authors.join(', ')}</p>
                             <p><strong>Contributors:</strong> {attestationData.contributors.join(', ')}</p>
+                            <p><strong>Copublishers:</strong> {attestationData.copublishers.join(', ')}</p>
                             <p><strong>IPFS Hash:</strong> {attestationData.ipfsHash}</p>
                             <p><strong>Quoted Attestation IDs:</strong> {attestationData.quotedAttestationIds.join(', ')}</p>
                             <p><strong>Tags:</strong> {attestationData.tags.join(', ')}</p>

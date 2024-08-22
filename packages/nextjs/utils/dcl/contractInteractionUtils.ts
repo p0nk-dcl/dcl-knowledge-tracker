@@ -4,10 +4,12 @@ import AttestationABI from '../../../hardhat/artifacts/contracts/AttestationFact
 export interface AttestationData {
     authors: string[];
     contributors: string[];
+    copublishers: string[];
     ipfsHash: string;
     quotedAttestationIds: string[];
     tags: string[];
     coPublishThreshold: bigint;
+    isActivated: boolean;
 }
 
 interface WalletClient {
@@ -31,9 +33,31 @@ export async function getAttestationData(
     provider: ethers.Provider
 ): Promise<AttestationData> {
     const contract = new ethers.Contract(address, AttestationABI.abi, provider);
-    const data = await contract.getAttestationData();
-    return data;
+
+    // Fetch individual data fields
+    // Fetch all data fields
+    const authors = await contract.getAuthors();
+    const contributors = await contract.getContributors();
+    const copublishers = await contract.getCopublishers();
+    const ipfsHash = await contract.getIpfsHash();
+    const quotedAttestationIds = await contract.getQuotedAttestationIds();
+    const tags = await contract.getTags();
+    const coPublishThreshold = await contract.getCoPublishThreshold();
+    const isActivated = await contract.isSigned();
+
+    // Construct and return the AttestationData object
+    return {
+        authors,
+        contributors,
+        copublishers,
+        ipfsHash,
+        quotedAttestationIds,
+        tags,
+        coPublishThreshold,
+        isActivated
+    };
 }
+
 
 export async function changeCoPublishThreshold(
     walletClient: WalletClient,
