@@ -282,7 +282,7 @@ export default function AttestationViewer({ params }: { params: { address?: stri
                                         }}
                                         width={graphRef.current ? graphRef.current.clientWidth : undefined}
                                         height={graphRef.current ? graphRef.current.clientHeight : undefined}
-                                        enableZoomInteraction={false} // Disable zoom
+                                        // enableZoomInteraction={false} // Disable zoom
                                         enablePanInteraction={false} // Disable pan
                                     />
                                     {hoveredNode && (
