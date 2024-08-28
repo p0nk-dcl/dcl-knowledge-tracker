@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import type { NextPage } from "next";
-import { BugAntIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+import { BugAntIcon, MagnifyingGlassIcon, GlobeAltIcon, DocumentTextIcon } from "@heroicons/react/24/outline";
 import { useAccount, useChainId, useWalletClient } from 'wagmi';
 import { generateNFTMetadataImage, NFTMetadata } from '../utils/dcl/generateMetadataImage';
 import axios from 'axios';
@@ -14,9 +14,11 @@ import LoadingSpinner from '../components/LoadingSpinner';
 const mainRegistryAddress = "0xa8f3Ec9865196a96d4C157A7965fAfF7ed46Ee97"; //smartcontract address deployed on Sepolia
 
 const Home: NextPage = () => {
-  const { address: connectedAddress } = useAccount();
-  const chainId = useChainId();
+  const { address: connectedAddress = '' } = useAccount();
+  const chainId = useChainId() || 0;
   const { data: walletClient } = useWalletClient();
+
+  // Move state initializations and hooks inside a useEffect
   const [formData, setFormData] = useState({
     authorName: "",
     authorWallet: "",
@@ -29,17 +31,29 @@ const Home: NextPage = () => {
   });
   const [file, setFile] = useState<File | null>(null);
   const [ipfsUrls, setIpfsUrls] = useState({ metadata: '', resource: '' });
-
   const [smartContractAddress, setSmartContractAddress] = useState<string>('');
   const [verificationStatus, setVerificationStatus] = useState<'Pass' | 'Fail' | 'Pending'>('Pending');
-
   const [error, setError] = useState<string | null>(null);
   const [isTestingMode, setIsTestingMode] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Use useEffect to initialize client-side only state
+  useEffect(() => {
+    // Initialize any state that depends on browser APIs here
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+
+    // Check for single author address
+    if (e.target.name === 'authorWallet') {
+      const addresses = e.target.value.split(',').map(addr => addr.trim());
+      if (addresses.length > 1) {
+        setError('Only one author wallet address is allowed.');
+      } else {
+        setError(null);
+      }
+    }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -230,170 +244,233 @@ const Home: NextPage = () => {
 
 
   return (
-    <>
-      {/* <div className="flex items-center flex-col flex-grow pt-10"> */}
-      {/* <div className="px-5"> */}
-      {/* <h1 className="text-center"> */}
-      {/* <span className="block text-2xl mb-2">Bring your work on-chain</span>
-      <span className="block text-4xl font-bold">On-Chain</span> */}
-      {/* </h1> */}
-      {/* <div className="flex justify-center items-center space-x-2 flex-col sm:flex-row">
-            <p className="my-2 font-medium">Connected Address:</p>
-            <Address address={connectedAddress} />
-          </div> */}
-      {/* </div> */}
+    <div className="min-h-screen bg-gray-100">
+      <div className="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+        <h1 className="text-4xl font-bold text-center text-black mb-8">
+          Bring Your Work On-Chain
+        </h1>
 
-      {/* <div className="flex items-center flex-col flex-grow w-full mt-16 px-4 py-12 flex justify-center">
-        <form onSubmit={handleSubmit} className="flex flex-col space-y-4 bg-white p-8 rounded-none shadow-md w-full max-w-lg"> */}
-      <div className="flex flex-col items-center w-full mt-16 px-4 py-12">
-        <div className="flex items-center mb-4">
-          <input
-            type="checkbox"
-            id="testingMode"
-            checked={isTestingMode}
-            onChange={(e) => setIsTestingMode(e.target.checked)}
-            className="mr-2"
-          />
-          <label htmlFor="testingMode">Enable Testing Mode (bypass IPFS upload)</label>
+        <div className="bg-white shadow-lg rounded-lg overflow-hidden">
+          <div className="p-6 sm:p-8">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-semibold text-black">Create Attestation</h2>
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="testingMode"
+                  checked={isTestingMode}
+                  onChange={(e) => setIsTestingMode(e.target.checked)}
+                  className="mr-2"
+                />
+                <label htmlFor="testingMode" className="text-sm text-gray-600">
+                  Enable Testing Mode
+                </label>
+              </div>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Author Name
+                    <span className="ml-1 text-gray-500 cursor-help" title="If there are multiple authors, you can use an alias and provide a splitter contract address as the wallet address.">ⓘ</span>
+                  </label>
+                  <input
+                    name="authorName"
+                    placeholder="e.g., John Doe"
+                    onChange={handleChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Author Wallet Address
+                  </label>
+                  <input
+                    name="authorWallet"
+                    placeholder="e.g., 0x2538137867AEA631a3C880F26C1cC04eb843b8F9"
+                    onChange={handleChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  />
+                  {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Title
+                  </label>
+                  <input
+                    name="title"
+                    placeholder="e.g., L2 for Good"
+                    onChange={handleChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Contributors
+                    <span className="ml-1 text-gray-500 cursor-help" title="List only the contributors whose participation you want to value. Format: Name: Wallet Address">ⓘ</span>
+                  </label>
+                  <input
+                    name="contributors"
+                    placeholder="e.g., Jonas Joe: 0xf39Fd6e51aa..., Kilian Kane: 0x709979...."
+                    onChange={handleChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Tags
+                  </label>
+                  <input
+                    name="tags"
+                    placeholder="e.g., 'l2', 'blockchain for good', 'refi'"
+                    onChange={handleChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Co-Publish Amount Fees (in Eth)
+                  </label>
+                  <input
+                    name="coPublishThreshold"
+                    type="number"
+                    step="0.01"
+                    placeholder="0.1"
+                    value={formData.coPublishThreshold}
+                    onChange={handleChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    URL
+                  </label>
+                  <input
+                    name="url"
+                    placeholder="e.g., https://example.com"
+                    onChange={handleChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Existing Work ID (optional)
+                  </label>
+                  <input
+                    name="existingWorkId"
+                    placeholder="e.g., 15489947987"
+                    onChange={handleChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Upload File
+                </label>
+                <input
+                  type="file"
+                  onChange={handleFileChange}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="w-full bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+              >
+                Submit
+              </button>
+            </form>
+          </div>
         </div>
-        <form onSubmit={handleSubmit} className="flex flex-col space-y-4 bg-white p-8 rounded-lg shadow-md w-full max-w-lg mb-8">
-          <label className="font-semibold">Author Name:</label>
-          <input
-            name="authorName"
-            placeholder="e.g., John Doe"
-            onChange={handleChange}
-            className="input input-bordered w-full"
-          />
 
-          <label className="font-semibold">Author Wallet Address:</label>
-          <input
-            name="authorWallet"
-            placeholder="e.g., 0x2538137867AEA631a3C880F26C1cC04eb843b8F9"
-            onChange={handleChange}
-            className="input input-bordered w-full"
-          />
-
-          <label className="font-semibold">Title:</label>
-          <input
-            name="title"
-            placeholder="e.g., L2 for Good"
-            onChange={handleChange}
-            className="input input-bordered w-full"
-          />
-
-          <label className="font-semibold">Contributors:</label>
-          <input
-            name="contributors"
-            placeholder="e.g., Jonas Joe: 0xf39Fd6e51aa..., Kilian Kane: 0x709979...."
-            onChange={handleChange}
-            className="input input-bordered w-full"
-          />
-
-          <label className="font-semibold">Tags:</label>
-          <input
-            name="tags"
-            placeholder="e.g., 'l2', 'blockchain for good', 'refi'"
-            onChange={handleChange}
-            className="input input-bordered w-full"
-          />
-          <label className="font-semibold">Co-Publish Amount Fees (in Eth):</label>
-          <input
-            name="coPublishThreshold"
-            type="number"
-            step="0.01"
-            placeholder="0.1"
-            value={formData.coPublishThreshold}
-            onChange={handleChange}
-            className="input input-bordered w-full"
-          />
-
-          <label className="font-semibold">URL:</label>
-          <input
-            name="url"
-            placeholder="e.g., https://example.com"
-            onChange={handleChange}
-            className="input input-bordered w-full"
-          />
-
-          <label className="font-semibold">Existing Work ID (optional):</label>
-          <input
-            name="existingWorkId"
-            placeholder="e.g., 15489947987"
-            onChange={handleChange}
-            className="input input-bordered w-full"
-          />
-
-          <label className="font-semibold">Upload File:</label>
-          <input
-            type="file"
-            onChange={handleFileChange}
-            required
-            className="file-input file-input-bordered w-full"
-          />
-
-          <button type="submit" className="btn btn-primary w-full">Submit</button>
-        </form>
-        {isLoading && <LoadingSpinner />}
-        {(ipfsUrls.metadata || ipfsUrls.resource || smartContractAddress) && (
-          <div className="w-full max-w-lg p-6 bg-blue-50 rounded-lg shadow-md">
-            <h2 className="text-2xl font-bold mb-4 text-blue-800">Upload Information</h2>
-            {ipfsUrls.metadata && (
-              <p className="mb-2">
-                <strong>Metadata CID:</strong>
-                <a href={ipfsUrls.metadata} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline ml-2">
-                  {ipfsUrls.metadata.split('/').pop()}
-                </a>
-              </p>
-            )}
-            {ipfsUrls.resource && (
-              <p className="mb-2">
-                <strong>Resource CID:</strong>
-                <a href={ipfsUrls.resource} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline ml-2">
-                  {ipfsUrls.resource.split('/').pop()}
-                </a>
-              </p>
-            )}
-            {smartContractAddress && (
-              <p className="mb-2">
-                <strong>Smart Contract Address:</strong>
-                <span className="ml-2">{smartContractAddress}</span>
-              </p>
-            )
-            }
+        {isLoading && (
+          <div className="mt-8 flex justify-center">
+            <LoadingSpinner />
           </div>
         )}
-      </div>
-      {verificationStatus && (
-        <div className="mt-4 p-4 bg-blue-100 text-blue-700 rounded">
-          {verificationStatus}
-        </div>
-      )}
-      <div className="flex-grow w-full mt-16 px-8 py-12">
-        <div className="flex justify-center items-center gap-12 flex-col sm:flex-row">
-          <div className="flex flex-col px-10 py-10 text-center items-center max-w-xs rounded-3xl">
-            <MagnifyingGlassIcon className="h-8 w-8 fill-secondary" />
-            <p>
-              Browse attestations with the {" "}
-              <Link href="/attestation-viewer" passHref className="link">
-                Viewer
-              </Link>{" "}
-              tab.
-            </p>
+
+        {(ipfsUrls.metadata || ipfsUrls.resource || smartContractAddress) && (
+          <div className="mt-8 bg-white shadow-lg rounded-lg overflow-hidden">
+            <div className="p-6 sm:p-8">
+              <h2 className="text-2xl font-semibold text-black mb-4">Upload Information</h2>
+              {ipfsUrls.metadata && (
+                <p className="mb-2">
+                  <strong>Metadata CID:</strong>
+                  <a href={ipfsUrls.metadata} target="_blank" rel="noopener noreferrer" className="text-green-500 hover:text-green-600 ml-2">
+                    {ipfsUrls.metadata.split('/').pop()}
+                  </a>
+                </p>
+              )}
+              {ipfsUrls.resource && (
+                <p className="mb-2">
+                  <strong>Resource CID:</strong>
+                  <a href={ipfsUrls.resource} target="_blank" rel="noopener noreferrer" className="text-green-500 hover:text-green-600 ml-2">
+                    {ipfsUrls.resource.split('/').pop()}
+                  </a>
+                </p>
+              )}
+              {smartContractAddress && (
+                <p className="mb-2">
+                  <strong>Smart Contract Address:</strong>
+                  <span className="ml-2">{smartContractAddress}</span>
+                </p>
+              )}
+            </div>
           </div>
-          <div className="flex flex-col bg-gray-100 px-10 py-10 text-center items-center max-w-xs rounded-3xl">
-            <BugAntIcon className="h-8 w-8 fill-secondary" />
-            <p>
-              Explore your local transactions with the{" "}
-              <Link href="/blockexplorer" passHref className="link">
-                Block Explorer
-              </Link>{" "}
-              tab.
-            </p>
+        )}
+
+        {/* {verificationStatus && (
+          <div className="mt-8 p-4 bg-green-100 text-green-700 rounded-lg">
+            Verification Status: {verificationStatus}
+          </div>
+        )} */}
+
+        <div className="mt-16">
+          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
+            <div className="bg-white p-6 rounded-lg shadow-md">
+              <GlobeAltIcon className="h-12 w-12 text-green-500 mb-4" />
+              <h3 className="text-xl font-semibold mb-2">Browse Attestations</h3>
+              <p className="text-gray-600 mb-4">
+                Explore existing attestations and their details.
+              </p>
+              <Link
+                href="/attestation-viewer"
+                className="text-green-500 hover:text-green-600 font-medium"
+              >
+                Go to Viewer
+              </Link>
+            </div>
+            <div className="bg-white p-6 rounded-lg shadow-md">
+              <DocumentTextIcon className="h-12 w-12 text-green-500 mb-4" />
+              <h3 className="text-xl font-semibold mb-2">Block Explorer</h3>
+              <p className="text-gray-600 mb-4">
+                Examine your local transactions and blockchain activity.
+              </p>
+              <Link
+                href="/blockexplorer"
+                className="text-green-500 hover:text-green-600 font-medium"
+              >
+                Open Block Explorer
+              </Link>
+            </div>
           </div>
         </div>
       </div>
-      {/* </div> */}
-    </>
+    </div>
   );
 };
 

@@ -4,7 +4,7 @@ import React, { useCallback, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bars3Icon, BugAntIcon } from "@heroicons/react/24/outline";
+import { Bars3Icon, BugAntIcon, BookOpenIcon } from "@heroicons/react/24/outline";
 import { FaucetButton, RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 import { useOutsideClick } from "~~/hooks/scaffold-eth";
 
@@ -15,10 +15,15 @@ type HeaderMenuLink = {
 };
 
 export const menuLinks: HeaderMenuLink[] = [
-  // {
-  //   label: "Home",
-  //   href: "/",
-  // },
+  {
+    label: "⚒️ Forge",
+    href: "/",
+  },
+  {
+    label: "🔍 Attestations",
+    href: "/attestation-viewer",
+    // icon: <BookOpenIcon className="h-4 w-4" />,
+  },
   // {
   //   label: "Debug Contracts",
   //   href: "/debug",
@@ -92,12 +97,8 @@ export const Header = () => {
             <Image alt="SE2 logo" className="cursor-pointer" fill src="/dcl-logo.svg" />
           </div>
         </Link>
-        <Link href="/" passHref className="hidden lg:flex items-center gap-2 mx auto">
-          <div className="flex items-center flex-col">
-            <span className="font-bold leading-tight"> 🧠Knowledge-Tracker🧠</span>
-            {/* <span className="text-xs">DCL dev stack</span> */}
-          </div>
-        </Link>
+      </div>
+      <div className="navbar-center">
         <ul className="hidden lg:flex lg:flex-nowrap menu menu-horizontal px-1 gap-2">
           <HeaderMenuLinks />
         </ul>
