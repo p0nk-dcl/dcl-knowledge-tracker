@@ -84,15 +84,6 @@ contract Attestation is ReentrancyGuard {
 	function _sign(address author) internal {
 		require(!hasSigned[author], "Author has already signed.");
 		hasSigned[author] = true;
-		emit ContributorSigned(author);
-	}
-
-	function sign() external {
-		require(!isActivated, "Attestation already activated");
-		require(isContributor(msg.sender), "Not a contributor");
-		require(!hasSigned[msg.sender], "Already signed");
-
-		hasSigned[msg.sender] = true;
 		signatureCount++;
 
 		if (signatureCount == contributors.length + authors.length) {
@@ -100,7 +91,13 @@ contract Attestation is ReentrancyGuard {
 			emit AttestationActivated();
 		}
 
-		emit ContributorSigned(msg.sender);
+		emit ContributorSigned(author);
+	}
+
+	function sign() external {
+		require(!isActivated, "Attestation already activated");
+		require(isContributor(msg.sender), "Not a contributor");
+		_sign(msg.sender);
 	}
 
 	//missing amount for donation (and if the fund > threshold => co-publisher ?)
@@ -186,11 +183,7 @@ contract Attestation is ReentrancyGuard {
 	}
 
 	function isVerifiedAuthor(address _address) internal view returns (bool) {
-		if (!isAuthor(_address)) {
-			return false;
-		}
-		(, , , bool isVerified) = mainRegistry.users(_address);
-		return isVerified;
+		return isAuthor(_address) && mainRegistry.isWalletVerified(_address);
 	}
 
 	//Contributors here are author+co-authors+contributors
@@ -269,7 +262,7 @@ contract Attestation is ReentrancyGuard {
 // #ATTESTATION FACTORY CONTRACT
 contract AttestationFactory is Ownable {
 	MainRegistry public mainRegistry;
-	uint256 public _verificationThreshold = 0.05 ether; // Default value set to 0.05 ETH
+	uint256 public _verificationThreshold = 0.05 ether;
 	mapping(address => bool) public authorizedAddresses;
 
 	event AttestationCreated(
@@ -286,6 +279,7 @@ contract AttestationFactory is Ownable {
 
 	constructor(address _mainRegistryAddress) {
 		mainRegistry = MainRegistry(_mainRegistryAddress);
+        authorizedAddresses[msg.sender] = true;
 	}
 
 	modifier onlyAuthorized() {
@@ -324,10 +318,10 @@ contract AttestationFactory is Ownable {
 	function createAttestation(
 		address[] memory _authors,
 		address[] memory _contributors,
-		string memory _ipfsHash, //contains in a json format all the metadata
-		uint256[] memory _quotedAttestationId, //related/quoted previous work/attestationID to create links
+		string memory _ipfsHash,
+		uint256[] memory _quotedAttestationId,
 		string[] memory _tags,
-		uint256 _coPublishThreshold //min amount in native currency of donation to be added as co-publisher
+		uint256 _coPublishThreshold
 	) external returns (address) {
 		Attestation newAttestation = new Attestation(
 			address(mainRegistry),
@@ -350,6 +344,14 @@ contract AttestationFactory is Ownable {
 		}
 		for (uint i = 0; i < _contributors.length; i++) {
 			allParticipants[_authors.length + i] = _contributors[i];
+		}
+
+		// Ensure all participants are registered in the MainRegistry
+		for (uint i = 0; i < allParticipants.length; i++) {
+			if (mainRegistry.walletToUserId(allParticipants[i]) == 0) {
+				// If the wallet is not associated with any user, create a new user with an empty username
+				mainRegistry.registerUser("");
+			}
 		}
 
 		mainRegistry.addAttestation(attestationAddress, allParticipants);
