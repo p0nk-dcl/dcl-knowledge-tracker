@@ -146,23 +146,29 @@ export async function likeAttestation(
     await provider.waitForTransaction(txHash);
 }
 
-export async function donateToAttestation(
+export const donateToAttestation = async (
     walletClient: WalletClient,
     attestationAddress: string,
-    amount: string
-): Promise<void> {
+    amount: bigint
+) => {
     const provider = await walletClientToEthersProvider(walletClient);
     const signer = await provider.getSigner(walletClient.account.address);
     const contract = new ethers.Contract(attestationAddress, AttestationABI.abi, signer);
 
-    const txRequest = await contract.donate.populateTransaction({
-        value: ethers.parseEther(amount)
-    });
+    try {
+        const txRequest = await contract.donate.populateTransaction(amount, {
+            value: amount,
+        });
 
-    const txHash = await walletClient.sendTransaction({
-        ...txRequest,
-        from: walletClient.account.address
-    });
+        const txHash = await walletClient.sendTransaction({
+            ...txRequest,
+            from: walletClient.account.address
+        });
 
-    await provider.waitForTransaction(txHash);
-}
+        await provider.waitForTransaction(txHash);
+        console.log('Donation successful');
+    } catch (error) {
+        console.error('Error donating:', error);
+        throw error;
+    }
+};

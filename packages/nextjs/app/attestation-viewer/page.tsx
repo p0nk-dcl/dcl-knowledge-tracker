@@ -132,9 +132,8 @@ export default function AttestationViewer({ params }: { params: { address?: stri
                 case 'donate':
                     const amount = prompt('Enter donation amount (in ETH):');
                     if (amount) {
-                        // Convert the amount to wei and ensure it's a valid BigNumber
                         const amountInWei = ethers.parseEther(amount);
-                        await donateToAttestation(walletClient, attestationAddress, amountInWei.toString());
+                        await donateToAttestation(walletClient, attestationAddress, amountInWei);
                     }
                     break;
             }
