@@ -11,6 +11,9 @@ export interface AttestationData {
     coPublishThreshold: bigint;
     isActivated: boolean;
     upvoteCount: bigint;
+    totalReceivedFunds: bigint;
+    signatureCount: bigint;
+    currentBalance: bigint;
 }
 
 interface WalletClient {
@@ -46,6 +49,9 @@ export async function getAttestationData(
     const coPublishThreshold = await contract.coPublishThreshold();
     const isActivated = await contract.isActivated();
     const upvoteCount = await contract.upvoteCount();
+    const totalReceivedFunds = await contract.totalReceivedFunds();
+    const signatureCount = await contract.signatureCount();
+    const currentBalance = await provider.getBalance(address);
 
     // Construct and return the AttestationData object
     return {
@@ -57,7 +63,10 @@ export async function getAttestationData(
         tags,
         coPublishThreshold,
         isActivated,
-        upvoteCount
+        upvoteCount,
+        totalReceivedFunds,
+        signatureCount,
+        currentBalance
     };
 }
 

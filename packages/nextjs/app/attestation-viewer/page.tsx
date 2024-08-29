@@ -17,6 +17,7 @@ import {
     donateToAttestation
 } from '../../utils/dcl/contractInteractionUtils';
 import { UserIcon, HandThumbUpIcon, CurrencyDollarIcon, TagIcon, ClockIcon, LinkIcon, DocumentDuplicateIcon } from '@heroicons/react/24/solid';
+import IPFSContent from './IPFSContent';
 
 const ForceGraph2D = dynamic(() => import('react-force-graph-2d'), { ssr: false });
 
@@ -130,7 +131,11 @@ export default function AttestationViewer({ params }: { params: { address?: stri
                     break;
                 case 'donate':
                     const amount = prompt('Enter donation amount (in ETH):');
-                    if (amount) await donateToAttestation(walletClient, attestationAddress, amount);
+                    if (amount) {
+                        // Convert the amount to wei and ensure it's a valid BigNumber
+                        const amountInWei = ethers.parseEther(amount);
+                        await donateToAttestation(walletClient, attestationAddress, amountInWei.toString());
+                    }
                     break;
             }
             // Refresh attestation data after action
@@ -171,6 +176,58 @@ export default function AttestationViewer({ params }: { params: { address?: stri
         setHoveredNode(node);
     }, []);
 
+    const renderContentPreview = () => {
+        if (!ipfsContent || !attestationData) return null;
+
+        const ipfsUrl = `https://ipfs.io/ipfs/${attestationData.ipfsHash}`;
+        const mediaType = ipfsContent.mediaType;
+
+        switch (true) {
+            case mediaType.startsWith('image/'):
+                return (
+                    <div className="w-full h-96 flex items-center justify-center">
+                        <img
+                            src={ipfsUrl}
+                            alt="IPFS Content"
+                            className="max-w-full max-h-full object-contain"
+                        />
+                    </div>
+                );
+            case mediaType.startsWith('video/'):
+                return (
+                    <video controls className="w-full max-h-96">
+                        <source src={ipfsUrl} type={mediaType} />
+                        Your browser does not support the video tag.
+                    </video>
+                );
+            case mediaType === 'application/pdf':
+                return (
+                    <iframe
+                        src={`https://docs.google.com/viewer?url=${encodeURIComponent(ipfsUrl)}&embedded=true`}
+                        className="w-full h-96"
+                        title="PDF Viewer"
+                    />
+                );
+            case mediaType.startsWith('text/'):
+                return (
+                    <iframe
+                        src={ipfsUrl}
+                        className="w-full h-96"
+                        title="Text Content"
+                    />
+                );
+            default:
+                return (
+                    <div className="w-full h-96 flex items-center justify-center bg-gray-100 text-gray-600">
+                        <p>Unsupported media type: {mediaType}</p>
+                        <a href={ipfsUrl} target="_blank" rel="noopener noreferrer" className="ml-2 text-blue-500 hover:underline">
+                            View content
+                        </a>
+                    </div>
+                );
+        }
+    };
+
     return (
         <div className="container mx-auto px-4 py-8">
             <h1 className="text-3xl font-bold mb-8 text-center">Attestation Viewer</h1>
@@ -193,48 +250,79 @@ export default function AttestationViewer({ params }: { params: { address?: stri
             {error && <p className="text-red-500 mb-4">{error}</p>}
 
             {attestationData && ipfsContent && (
-                <div className="flex flex-col lg:flex-row gap-8">
-                    <div className="w-full lg:w-1/3">
-                        <h2 className="text-2xl font-semibold mb-4">Attestation Details</h2>
-                        <div className="bg-white shadow-md rounded p-6 mb-6">
-                            <div className="flex items-center mb-2">
-                                <UserIcon className="w-5 h-5 mr-2" />
-                                <p><strong>Author:</strong> {ipfsContent.authorName} ({ipfsContent.authorWallet})</p>
+                <>
+                    <div className="flex flex-col lg:flex-row gap-8 mb-8">
+                        <div className="w-full lg:w-1/3">
+                            <div className="bg-white shadow-md rounded p-6 mb-6">
+                                <div className="flex justify-between items-start">
+                                    <h2 className="text-2xl font-semibold mb-4">Attestation Details</h2>
+                                    {isBrowser && provider && (
+                                        <AttestationQRCode attestationAddress={attestationAddress} provider={provider} />
+                                    )}
+                                </div>
+                                <div className="flex items-center mb-2">
+                                    <UserIcon className="w-5 h-5 mr-2" />
+                                    <p><strong>Author:</strong> {ipfsContent.authorName} ({ipfsContent.authorWallet})</p>
+                                </div>
+                                <div className="flex items-center mb-2">
+                                    <DocumentDuplicateIcon className="w-5 h-5 mr-2" />
+                                    <p><strong>Title:</strong> {ipfsContent.title}</p>
+                                </div>
+                                <div className="flex items-center mb-2">
+                                    <UserIcon className="w-5 h-5 mr-2" />
+                                    <p><strong>Contributors:</strong> {ipfsContent.contributors}</p>
+                                </div>
+                                <div className="flex items-center mb-2">
+                                    <TagIcon className="w-5 h-5 mr-2" />
+                                    <p><strong>Tags:</strong> {ipfsContent.tags}</p>
+                                </div>
+                                <div className="flex items-center mb-2">
+                                    <CurrencyDollarIcon className="w-5 h-5 mr-2" />
+                                    <p><strong>Co-publisher Fees:</strong> {ipfsContent.copublisherFees} ETH (Initial) / {ethers.formatEther(attestationData.coPublishThreshold)} ETH (Current)</p>
+                                </div>
+                                <div className="flex items-center mb-2">
+                                    <LinkIcon className="w-5 h-5 mr-2" />
+                                    <p><strong>URL:</strong> <a href={ipfsContent.url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">{ipfsContent.url}</a></p>
+                                </div>
+                                <div className="flex items-center mb-2">
+                                    <ClockIcon className="w-5 h-5 mr-2" />
+                                    <p><strong>Created At:</strong> {new Date(ipfsContent.createdAt).toLocaleString()}</p>
+                                </div>
+                                <p><strong>IPFS Hash:</strong> {attestationData.ipfsHash}</p>
+                                <p><strong>Quoted Attestation IDs:</strong> {attestationData.quotedAttestationIds.join(', ')}</p>
+                                <p><strong>Number of Likes:</strong> {new Number(attestationData.upvoteCount).toLocaleString()}</p>
                             </div>
-                            <div className="flex items-center mb-2">
-                                <DocumentDuplicateIcon className="w-5 h-5 mr-2" />
-                                <p><strong>Title:</strong> {ipfsContent.title}</p>
-                            </div>
-                            <div className="flex items-center mb-2">
-                                <UserIcon className="w-5 h-5 mr-2" />
-                                <p><strong>Contributors:</strong> {ipfsContent.contributors}</p>
-                            </div>
-                            <div className="flex items-center mb-2">
-                                <TagIcon className="w-5 h-5 mr-2" />
-                                <p><strong>Tags:</strong> {ipfsContent.tags}</p>
-                            </div>
-                            <div className="flex items-center mb-2">
-                                <CurrencyDollarIcon className="w-5 h-5 mr-2" />
-                                <p><strong>Co-publisher Fees:</strong> {ipfsContent.copublisherFees} ETH (Initial) / {ethers.formatEther(attestationData.coPublishThreshold)} ETH (Current)</p>
-                            </div>
-                            <div className="flex items-center mb-2">
-                                <LinkIcon className="w-5 h-5 mr-2" />
-                                <p><strong>URL:</strong> <a href={ipfsContent.url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">{ipfsContent.url}</a></p>
-                            </div>
-                            <div className="flex items-center mb-2">
-                                <ClockIcon className="w-5 h-5 mr-2" />
-                                <p><strong>Created At:</strong> {new Date(ipfsContent.createdAt).toLocaleString()}</p>
-                            </div>
-                            <p><strong>IPFS Hash:</strong> {attestationData.ipfsHash}</p>
-                            <p><strong>Quoted Attestation IDs:</strong> {attestationData.quotedAttestationIds.join(', ')}</p>
-                            <p><strong>Number of Likes:</strong> {new Number(attestationData.upvoteCount).toLocaleString()}</p>
                         </div>
 
-                        <h3 className="text-xl font-semibold mb-4">Actions</h3>
-                        <div className="bg-white shadow-md rounded p-6 mb-6">
-                            <div className="mb-4">
-                                <h4 className="font-semibold mb-2">Author/Contributor Actions:</h4>
+                        <div className="w-full lg:w-2/3">
+                            <div className="bg-white shadow-md rounded p-6 mb-6">
+                                {/* <h3 className="text-xl font-semibold mb-4">User Actions</h3> */}
                                 <div className="flex flex-wrap gap-2">
+                                    <button onClick={() => handleUserAction('like')} className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded flex items-center">
+                                        <HandThumbUpIcon className="w-5 h-5 mr-2" /> Like/Upvote
+                                    </button>
+                                    <button onClick={() => handleUserAction('donate')} className="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded flex items-center">
+                                        <CurrencyDollarIcon className="w-5 h-5 mr-2" /> Donate
+                                    </button>
+                                    <p>💰 Total Received: {ethers.formatEther(attestationData.totalReceivedFunds)} ETH</p>
+                                    <p>🏦 Current Balance: {ethers.formatEther(attestationData.currentBalance)} ETH</p>
+                                </div>
+                            </div>
+
+                            <div className="bg-white shadow-md rounded p-6 mb-6">
+                                {/* <h2 className="text-2xl font-semibold mb-4">Forged Item Preview</h2> */}
+                                <div className="bg-gray-200 rounded-lg flex items-center justify-center">
+                                    {renderContentPreview()}
+                                </div>
+                                <a href={`https://ipfs.io/ipfs/${attestationData.ipfsHash}`} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline mt-4 inline-block">
+                                    View full content on IPFS
+                                </a>
+                            </div>
+
+                            <div className="bg-white shadow-md rounded p-6">
+                                <h3 className="text-xl font-semibold mb-4">Author/Contributor Only Actions</h3>
+                                <div className="flex flex-wrap gap-2">
+                                    <p>✍️ Signature Count: {attestationData.signatureCount.toString()}</p>
                                     <button onClick={() => handleAuthorAction('changeThreshold')} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center">
                                         <CurrencyDollarIcon className="w-5 h-5 mr-2" /> Change Threshold
                                     </button>
@@ -246,44 +334,12 @@ export default function AttestationViewer({ params }: { params: { address?: stri
                                     </button>
                                 </div>
                             </div>
-                            <div>
-                                <h4 className="font-semibold mb-2">User Actions:</h4>
-                                <div className="flex flex-wrap gap-2">
-                                    <button onClick={() => handleUserAction('like')} className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded flex items-center">
-                                        <HandThumbUpIcon className="w-5 h-5 mr-2" /> Like/Upvote
-                                    </button>
-                                    <button onClick={() => handleUserAction('donate')} className="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded flex items-center">
-                                        <CurrencyDollarIcon className="w-5 h-5 mr-2" /> Donate
-                                    </button>
-                                </div>
-                            </div>
                         </div>
-
-                        <h3 className="text-xl font-semibold mt-6 mb-2">QR Code</h3>
-                        {isBrowser && provider && (
-                            <AttestationQRCode attestationAddress={attestationAddress} provider={provider} />
-                        )}
                     </div>
 
-                    <div className="w-full lg:w-2/3">
-                        <h2 className="text-2xl font-semibold mb-4">Content Preview</h2>
-                        <div className="bg-white shadow-md rounded p-6 mb-6">
-                            <p>{ipfsContent.content}</p>
-                            <a href={`https://ipfs.io/ipfs/${attestationData.ipfsHash}`} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline mt-4 inline-block">
-                                View full content on IPFS
-                            </a>
-                        </div>
-
+                    <div className="bg-white shadow-md rounded p-6">
                         <h2 className="text-2xl font-semibold mb-4">Attestation Map</h2>
-                        <div
-                            ref={graphRef}
-                            className="bg-white shadow-md rounded"
-                            style={{
-                                height: '400px',
-                                position: 'relative',
-                                overflow: 'hidden'
-                            }}
-                        >
+                        <div ref={graphRef} style={{ height: '400px', position: 'relative', overflow: 'hidden' }}>
                             {isBrowser && (
                                 <>
                                     <ForceGraph2D
@@ -325,7 +381,7 @@ export default function AttestationViewer({ params }: { params: { address?: stri
                             )}
                         </div>
                     </div>
-                </div>
+                </>
             )}
         </div>
     );
