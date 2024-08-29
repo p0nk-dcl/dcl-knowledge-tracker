@@ -82,6 +82,7 @@ export default function AttestationViewer({ params }: { params: { address?: stri
                     const response = await fetch(`https://ipfs.io/ipfs/${attestationData.ipfsHash}`);
                     const data = await response.json();
                     setIpfsContent(data);
+                    console.log('Fetched IPFS content:', data);
                 } catch (error) {
                     console.error('Error fetching IPFS content:', error);
                 }
@@ -194,31 +195,45 @@ export default function AttestationViewer({ params }: { params: { address?: stri
     const renderContentPreview = () => {
         if (!ipfsContent || !attestationData) return null;
 
-        const ipfsUrl = `https://ipfs.io/ipfs/${attestationData.ipfsHash}`;
+        console.log('IPFS Content:', ipfsContent);
+
         const mediaType = ipfsContent.mediaType;
+        const mediaUrl = ipfsContent.mediaUrl;
+
+        console.log('Media Type:', mediaType);
+        console.log('Media URL:', mediaUrl);
 
         switch (true) {
             case mediaType.startsWith('image/'):
                 return (
                     <div className="w-full h-96 flex items-center justify-center">
                         <img
-                            src={ipfsUrl}
-                            alt="IPFS Content"
+                            src={mediaUrl}
+                            alt={ipfsContent.title || "IPFS Content"}
                             className="max-w-full max-h-full object-contain"
+                            onLoad={() => console.log('Image loaded successfully')}
+                            onError={(e) => {
+                                console.error('Error loading image:', e);
+                                console.log('Image source:', mediaUrl);
+                                const errorDiv = document.createElement('div');
+                                errorDiv.textContent = `Error loading image. Media URL: ${mediaUrl}`;
+                                errorDiv.className = 'text-red-500';
+                                e.currentTarget.parentNode?.replaceChild(errorDiv, e.currentTarget);
+                            }}
                         />
                     </div>
                 );
             case mediaType.startsWith('video/'):
                 return (
                     <video controls className="w-full max-h-96">
-                        <source src={ipfsUrl} type={mediaType} />
+                        <source src={mediaUrl} type={mediaType} />
                         Your browser does not support the video tag.
                     </video>
                 );
             case mediaType === 'application/pdf':
                 return (
                     <iframe
-                        src={`https://docs.google.com/viewer?url=${encodeURIComponent(ipfsUrl)}&embedded=true`}
+                        src={`https://docs.google.com/viewer?url=${encodeURIComponent(mediaUrl)}&embedded=true`}
                         className="w-full h-96"
                         title="PDF Viewer"
                     />
@@ -226,7 +241,7 @@ export default function AttestationViewer({ params }: { params: { address?: stri
             case mediaType.startsWith('text/'):
                 return (
                     <iframe
-                        src={ipfsUrl}
+                        src={mediaUrl}
                         className="w-full h-96"
                         title="Text Content"
                     />
@@ -235,7 +250,7 @@ export default function AttestationViewer({ params }: { params: { address?: stri
                 return (
                     <div className="w-full h-96 flex items-center justify-center bg-gray-100 text-gray-600">
                         <p>Unsupported media type: {mediaType}</p>
-                        <a href={ipfsUrl} target="_blank" rel="noopener noreferrer" className="ml-2 text-blue-500 hover:underline">
+                        <a href={mediaUrl} target="_blank" rel="noopener noreferrer" className="ml-2 text-blue-500 hover:underline">
                             View content
                         </a>
                     </div>
