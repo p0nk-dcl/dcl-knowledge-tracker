@@ -14,10 +14,12 @@ import {
     signAttestation,
     likeAttestation,
     revokeAffiliation,
-    donateToAttestation
+    donateToAttestation,
+    claimFunds
 } from '../../utils/dcl/contractInteractionUtils';
 import { UserIcon, HandThumbUpIcon, CurrencyDollarIcon, TagIcon, ClockIcon, LinkIcon, DocumentDuplicateIcon } from '@heroicons/react/24/solid';
 import IPFSContent from './IPFSContent';
+import { emitWarning } from 'process';
 
 const ForceGraph2D = dynamic(() => import('react-force-graph-2d'), { ssr: false });
 
@@ -121,7 +123,7 @@ export default function AttestationViewer({ params }: { params: { address?: stri
         }
     };
 
-    const handleUserAction = async (action: 'like' | 'donate') => {
+    const handleUserAction = async (action: 'like' | 'donate' | 'claimFunds') => {
         if (!walletClient || !attestationAddress) return;
 
         try {
@@ -136,6 +138,9 @@ export default function AttestationViewer({ params }: { params: { address?: stri
                         await donateToAttestation(walletClient, attestationAddress, amountInWei);
                     }
                     break;
+                case 'claimFunds':
+                    await claimFunds(walletClient, attestationAddress);
+                    break;
             }
             // Refresh attestation data after action
             if (provider) {
@@ -144,6 +149,17 @@ export default function AttestationViewer({ params }: { params: { address?: stri
         } catch (err) {
             console.error(err);
             setError(`Error performing ${action}`);
+        }
+    };
+
+    const handleClaimFunds = async (action: 'claimFunds') => {
+        if (!walletClient || !attestationAddress) return;
+        const result = await claimFunds(walletClient, attestationAddress);
+        if (result.success) {
+            console.log(result.message);
+            // Optionally, you can refresh the attestation data here
+        } else {
+            alert(result.message);
         }
     };
 
@@ -330,6 +346,9 @@ export default function AttestationViewer({ params }: { params: { address?: stri
                                     </button>
                                     <button onClick={() => handleAuthorAction('revokeAffiliation')} className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded flex items-center">
                                         <UserIcon className="w-5 h-5 mr-2" /> Revoke Affiliation
+                                    </button>
+                                    <button onClick={() => handleClaimFunds('claimFunds')} className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded flex items-center">
+                                        <UserIcon className="w-5 h-5 mr-2" /> Claim Funds
                                     </button>
                                 </div>
                             </div>

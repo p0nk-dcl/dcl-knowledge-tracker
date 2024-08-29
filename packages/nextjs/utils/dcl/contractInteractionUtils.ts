@@ -172,3 +172,19 @@ export const donateToAttestation = async (
         throw error;
     }
 };
+
+export const claimFunds = async (walletClient: WalletClient, attestationAddress: string) => {
+    try {
+        const provider = new ethers.BrowserProvider(walletClient.transport);
+        const signer = await provider.getSigner();
+        const contract = new ethers.Contract(attestationAddress, AttestationABI.abi, signer);
+
+        const tx = await contract.claimFunds();
+        await tx.wait();
+
+        return { success: true, message: "Funds claimed successfully" };
+    } catch (error) {
+        console.error("Error claiming funds:", error);
+        return { success: false, message: "Failed to claim funds" };
+    }
+};
