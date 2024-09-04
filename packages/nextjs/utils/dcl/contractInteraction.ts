@@ -104,6 +104,32 @@ export async function createAttestation(
 
         console.log('New Attestation Address:', newAttestationAddress);
 
+        // Start the verification process in the background
+        verifyAttestation(newAttestationAddress, authors, contributors, ipfsHash, quotedAttestationId, tags, coPublishThreshold);
+
+        // Return the attestation address immediately
+        return newAttestationAddress;
+
+    } catch (error: unknown) {
+        console.error('Error creating attestation:', error);
+        if (error instanceof Error) {
+            throw new Error(`Failed to create attestation: ${error.message}`);
+        } else {
+            throw new Error('An unknown error occurred while creating the attestation');
+        }
+    }
+}
+
+async function verifyAttestation(
+    newAttestationAddress: string,
+    authors: string[],
+    contributors: string[],
+    ipfsHash: string,
+    quotedAttestationId: string[],
+    tags: string[],
+    coPublishThreshold: string
+) {
+    try {
         // Add a delay before verification (e.g., 30 seconds)
         console.log('Waiting for 30 seconds before attempting verification...');
         await delay(30000);
@@ -147,15 +173,9 @@ export async function createAttestation(
             console.warn('Contract verification submission failed.');
             finalStatus = 'Fail';
         }
-        console.log('Final verification status:', finalStatus);
-        return newAttestationAddress;
+        console.warn('Final verification status:', finalStatus);
 
     } catch (error: unknown) {
-        console.error('Error creating attestation:', error);
-        if (error instanceof Error) {
-            throw new Error(`Failed to create attestation: ${error.message}`);
-        } else {
-            throw new Error('An unknown error occurred while creating the attestation');
-        }
+        console.error('Error verifying attestation:', error);
     }
 }
