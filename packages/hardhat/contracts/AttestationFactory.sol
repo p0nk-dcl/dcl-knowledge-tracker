@@ -274,7 +274,9 @@ contract AttestationFactory is Ownable {
 	event AttestationCreated(
 		address indexed attestationAddress,
 		address[] authors,
-		address[] contributors
+		address[] contributors,
+		string authorName,
+		string title
 	);
 	event VerificationThresholdUpdated(
 		uint256 oldThreshold,
@@ -365,7 +367,7 @@ contract AttestationFactory is Ownable {
 		}
 
 		mainRegistry.addAttestation(attestationAddress, allParticipants);
-		emit AttestationCreated(attestationAddress, _authors, _contributors);
+		emit AttestationCreated(attestationAddress, _authors, _contributors, _authorName, _title);
 		return attestationAddress;
 	}
 }

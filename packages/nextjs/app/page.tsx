@@ -376,7 +376,7 @@ const Home: NextPage = () => {
                   </label>
                   <input
                     name="existingWorkId"
-                    placeholder="e.g., 15489947987"
+                    placeholder="e.g., 0x7890123456789012345678901234567890123456"
                     onChange={handleChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                   />
