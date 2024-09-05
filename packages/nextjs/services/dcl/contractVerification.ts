@@ -4,8 +4,8 @@ import axios from 'axios';
 import { ethers } from 'ethers';
 
 interface VerificationParams {
-    address: string;
-    constructorArguments: any[];
+	address: string;
+	constructorArguments: any[];
 }
 
 
@@ -42,7 +42,18 @@ abstract contract Context {
 
 pragma solidity ^0.8.0;
 
-
+/**
+ * @dev Contract module which provides a basic access control mechanism, where
+ * there is an account (an owner) that can be granted exclusive access to
+ * specific functions.
+ *
+ * By default, the owner account will be the one that deploys the contract. This
+ * can later be changed with {transferOwnership}.
+ *
+ * This module is used through inheritance. It will make available the modifier
+ * 'onlyOwner', which can be applied to your functions to restrict their use to
+ * the owner.
+ */
 abstract contract Ownable is Context {
     address private _owner;
 
@@ -77,17 +88,30 @@ abstract contract Ownable is Context {
         require(owner() == _msgSender(), "Ownable: caller is not the owner");
     }
 
-
+    /**
+     * @dev Leaves the contract without owner. It will not be possible to call
+     * 'onlyOwner' functions. Can only be called by the current owner.
+     *
+     * NOTE: Renouncing ownership will leave the contract without an owner,
+     * thereby disabling any functionality that is only available to the owner.
+     */
     function renounceOwnership() public virtual onlyOwner {
         _transferOwnership(address(0));
     }
 
+    /**
+     * @dev Transfers ownership of the contract to a new account ('newOwner').
+     * Can only be called by the current owner.
+     */
     function transferOwnership(address newOwner) public virtual onlyOwner {
         require(newOwner != address(0), "Ownable: new owner is the zero address");
         _transferOwnership(newOwner);
     }
 
-
+    /**
+     * @dev Transfers ownership of the contract to a new account ('newOwner').
+     * Internal function without access restriction.
+     */
     function _transferOwnership(address newOwner) internal virtual {
         address oldOwner = _owner;
         _owner = newOwner;
@@ -103,7 +127,22 @@ abstract contract Ownable is Context {
 
 pragma solidity ^0.8.0;
 
-
+/**
+ * @dev Contract module that helps prevent reentrant calls to a function.
+ *
+ * Inheriting from 'ReentrancyGuard' will make the {nonReentrant} modifier
+ * available, which can be applied to functions to make sure there are no nested
+ * (reentrant) calls to them.
+ *
+ * Note that because there is a single 'nonReentrant' guard, functions marked as
+ * 'nonReentrant' may not call one another. This can be worked around by making
+ * those functions 'private', and then adding 'external' 'nonReentrant' entry
+ * points to them.
+ *
+ * TIP: If you would like to learn more about reentrancy and alternative ways
+ * to protect against it, check out our blog post
+ * https://blog.openzeppelin.com/reentrancy-after-istanbul/[Reentrancy After Istanbul].
+ */
 abstract contract ReentrancyGuard {
     // Booleans are more expensive than uint256 or any type that takes up a full
     // word because each write operation emits an extra SLOAD to first read the
@@ -125,7 +164,13 @@ abstract contract ReentrancyGuard {
         _status = _NOT_ENTERED;
     }
 
-
+    /**
+     * @dev Prevents a contract from calling itself, directly or indirectly.
+     * Calling a 'nonReentrant' function from another 'nonReentrant'
+     * function is not supported. It is possible to prevent this from happening
+     * by making the 'nonReentrant' function external, and making it call a
+     * 'private' function that does the actual work.
+     */
     modifier nonReentrant() {
         _nonReentrantBefore();
         _;
@@ -146,7 +191,10 @@ abstract contract ReentrancyGuard {
         _status = _NOT_ENTERED;
     }
 
-
+    /**
+     * @dev Returns true if the reentrancy guard is currently set to "entered", which indicates there is a
+     * 'nonReentrant' function in the call stack.
+     */
     function _reentrancyGuardEntered() internal view returns (bool) {
         return _status == _ENTERED;
     }
@@ -164,7 +212,12 @@ pragma solidity ^0.8.0;
 // This version of SafeMath should only be used with Solidity 0.8 or later,
 // because it relies on the compiler's built in overflow checks.
 
-
+/**
+ * @dev Wrappers over Solidity's arithmetic operations.
+ *
+ * NOTE: 'SafeMath' is generally not needed starting with Solidity 0.8, since the compiler
+ * now has built in overflow checking.
+ */
 library SafeMath {
     /**
      * @dev Returns the addition of two unsigned integers, with an overflow flag.
@@ -232,32 +285,91 @@ library SafeMath {
         }
     }
 
-
+    /**
+     * @dev Returns the addition of two unsigned integers, reverting on
+     * overflow.
+     *
+     * Counterpart to Solidity's '+' operator.
+     *
+     * Requirements:
+     *
+     * - Addition cannot overflow.
+     */
     function add(uint256 a, uint256 b) internal pure returns (uint256) {
         return a + b;
     }
 
-
+    /**
+     * @dev Returns the subtraction of two unsigned integers, reverting on
+     * overflow (when the result is negative).
+     *
+     * Counterpart to Solidity's '-' operator.
+     *
+     * Requirements:
+     *
+     * - Subtraction cannot overflow.
+     */
     function sub(uint256 a, uint256 b) internal pure returns (uint256) {
         return a - b;
     }
 
-
+    /**
+     * @dev Returns the multiplication of two unsigned integers, reverting on
+     * overflow.
+     *
+     * Counterpart to Solidity's '*' operator.
+     *
+     * Requirements:
+     *
+     * - Multiplication cannot overflow.
+     */
     function mul(uint256 a, uint256 b) internal pure returns (uint256) {
         return a * b;
     }
 
-
+    /**
+     * @dev Returns the integer division of two unsigned integers, reverting on
+     * division by zero. The result is rounded towards zero.
+     *
+     * Counterpart to Solidity's '/' operator.
+     *
+     * Requirements:
+     *
+     * - The divisor cannot be zero.
+     */
     function div(uint256 a, uint256 b) internal pure returns (uint256) {
         return a / b;
     }
 
-
+    /**
+     * @dev Returns the remainder of dividing two unsigned integers. (unsigned integer modulo),
+     * reverting when dividing by zero.
+     *
+     * Counterpart to Solidity's '%' operator. This function uses a 'revert'
+     * opcode (which leaves remaining gas untouched) while Solidity uses an
+     * invalid opcode to revert (consuming all remaining gas).
+     *
+     * Requirements:
+     *
+     * - The divisor cannot be zero.
+     */
     function mod(uint256 a, uint256 b) internal pure returns (uint256) {
         return a % b;
     }
 
-
+    /**
+     * @dev Returns the subtraction of two unsigned integers, reverting with custom message on
+     * overflow (when the result is negative).
+     *
+     * CAUTION: This function is deprecated because it requires allocating memory for the error
+     * message unnecessarily. For custom revert reasons use {trySub}.
+     *
+     * Counterpart to Solidity's '-' operator.
+     *
+     * Requirements:
+     *
+     * - Subtraction cannot overflow.
+     */
     function sub(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
         unchecked {
             require(b <= a, errorMessage);
@@ -265,7 +377,18 @@ library SafeMath {
         }
     }
 
-
+    /**
+     * @dev Returns the integer division of two unsigned integers, reverting with custom message on
+     * division by zero. The result is rounded towards zero.
+     *
+     * Counterpart to Solidity's '/' operator. Note: this function uses a
+     * 'revert' opcode (which leaves remaining gas untouched) while Solidity
+     * uses an invalid opcode to revert (consuming all remaining gas).
+     *
+     * Requirements:
+     *
+     * - The divisor cannot be zero.
+     */
     function div(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
         unchecked {
             require(b > 0, errorMessage);
@@ -273,7 +396,21 @@ library SafeMath {
         }
     }
 
-
+    /**
+     * @dev Returns the remainder of dividing two unsigned integers. (unsigned integer modulo),
+     * reverting with custom message when dividing by zero.
+     *
+     * CAUTION: This function is deprecated because it requires allocating memory for the error
+     * message unnecessarily. For custom revert reasons use {tryMod}.
+     *
+     * Counterpart to Solidity's '%' operator. This function uses a 'revert'
+     * opcode (which leaves remaining gas untouched) while Solidity uses an
+     * invalid opcode to revert (consuming all remaining gas).
+     *
+     * Requirements:
+     *
+     * - The divisor cannot be zero.
+     */
     function mod(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
         unchecked {
             require(b > 0, errorMessage);
@@ -290,6 +427,14 @@ library SafeMath {
 
 pragma solidity ^0.8.0;
 
+/**
+ * @title Counters
+ * @author Matt Condon (@shrugs)
+ * @dev Provides counters that can only be incremented, decremented or reset. This can be used e.g. to track the number
+ * of elements in a mapping, issuing ERC721 ids, or counting request ids.
+ *
+ * Include with 'using Counters for Counters.Counter;'
+ */
 library Counters {
     struct Counter {
         // This variable should never be directly accessed by users of the library: interactions must be restricted to
@@ -586,7 +731,7 @@ contract Attestation is ReentrancyGuard {
 	address[] private contributors;
 	string public ipfsHash;
 	string public title;
-	uint256[] private quotedAttestationId; //related/quoted previous work/attestationID to create links
+	address[] private quotedAttestationId; //related/quoted previous work/attestationID to create links
 	string[] private tags;
 	uint256 public coPublishThreshold;
 	uint256 public verificationThreshold;
@@ -620,7 +765,7 @@ contract Attestation is ReentrancyGuard {
 		address[] memory _contributors,
 		string memory _title,
 		string memory _ipfsHash,
-		uint256[] memory _quotedAttestationId,
+		address[] memory _quotedAttestationId,
 		string[] memory _tags,
 		uint256 _coPublishThreshold,
 		uint256 _verificationThreshold
@@ -811,7 +956,7 @@ contract Attestation is ReentrancyGuard {
 	function getQuotesAttestationIds()
 		external
 		view
-		returns (uint256[] memory)
+		returns (address[] memory)
 	{
 		return quotedAttestationId;
 	}
@@ -826,7 +971,9 @@ contract AttestationFactory is Ownable {
 	event AttestationCreated(
 		address indexed attestationAddress,
 		address[] authors,
-		address[] contributors
+		address[] contributors,
+		string authorName,
+		string title
 	);
 	event VerificationThresholdUpdated(
 		uint256 oldThreshold,
@@ -879,7 +1026,7 @@ contract AttestationFactory is Ownable {
 		address[] memory _contributors,
 		string memory _ipfsHash,
 		string memory _title,
-		uint256[] memory _quotedAttestationId,
+		address[] memory _quotedAttestationId,
 		string[] memory _tags,
 		uint256 _coPublishThreshold
 	) external returns (address) {
@@ -917,7 +1064,7 @@ contract AttestationFactory is Ownable {
 		}
 
 		mainRegistry.addAttestation(attestationAddress, allParticipants);
-		emit AttestationCreated(attestationAddress, _authors, _contributors);
+		emit AttestationCreated(attestationAddress, _authors, _contributors, _authorName, _title);
 		return attestationAddress;
 	}
 }
@@ -925,75 +1072,75 @@ contract AttestationFactory is Ownable {
 
 //replace with : https://api.etherscan.io/api for mainnet; sepolia: https://api-sepolia.etherscan.io/api
 export async function verifyContract(params: VerificationParams): Promise<string | false> {
-    try {
-        const apiUrl = 'https://api-sepolia.etherscan.io/api';
+	try {
+		const apiUrl = 'https://api-sepolia.etherscan.io/api';
 
-        console.log('Verifying contract at address:', params.address);
+		console.log('Verifying contract at address:', params.address);
 
-        // ABI encode constructor arguments
-        const abiCoder = new ethers.AbiCoder();
-        const encodedConstructorArgs = abiCoder.encode(
-            ['address', 'string', 'address[]', 'address[]', 'string', 'string', 'uint256[]', 'string[]', 'uint256', 'uint256'],
-            params.constructorArguments
-        ).slice(2); // remove '0x' prefix
+		// ABI encode constructor arguments
+		const abiCoder = new ethers.AbiCoder();
+		const encodedConstructorArgs = abiCoder.encode(
+			['address', 'string', 'address[]', 'address[]', 'string', 'string', 'uint256[]', 'string[]', 'uint256', 'uint256'],
+			params.constructorArguments
+		).slice(2); // remove '0x' prefix
 
-        console.log('Encoded constructor arguments:', encodedConstructorArgs);
+		console.log('Encoded constructor arguments:', encodedConstructorArgs);
 
-        const verificationData = new FormData();
-        verificationData.append('apikey', etherscanApiKey);
-        verificationData.append('module', 'contract');
-        verificationData.append('action', 'verifysourcecode');
-        verificationData.append('contractaddress', params.address);
-        verificationData.append('sourceCode', sourceCode);
-        verificationData.append('codeformat', 'solidity-single-file');
-        verificationData.append('contractname', 'Attestation');
-        verificationData.append('compilerversion', 'v0.8.17+commit.8df45f5f'); // Make sure this matches your compiler version
-        verificationData.append('optimizationUsed', '1');
-        verificationData.append('runs', '200');
-        verificationData.append('constructorArguements', encodedConstructorArgs);
+		const verificationData = new FormData();
+		verificationData.append('apikey', etherscanApiKey);
+		verificationData.append('module', 'contract');
+		verificationData.append('action', 'verifysourcecode');
+		verificationData.append('contractaddress', params.address);
+		verificationData.append('sourceCode', sourceCode);
+		verificationData.append('codeformat', 'solidity-single-file');
+		verificationData.append('contractname', 'Attestation');
+		verificationData.append('compilerversion', 'v0.8.17+commit.8df45f5f'); // Make sure this matches your compiler version
+		verificationData.append('optimizationUsed', '1');
+		verificationData.append('runs', '200');
+		verificationData.append('constructorArguements', encodedConstructorArgs);
 
-        console.log('Sending verification request to Etherscan...');
+		console.log('Sending verification request to Etherscan...');
 
-        const response = await axios.post(apiUrl, verificationData, {
-            headers: { 'Content-Type': 'multipart/form-data' }
-        });
+		const response = await axios.post(apiUrl, verificationData, {
+			headers: { 'Content-Type': 'multipart/form-data' }
+		});
 
-        console.log('Received response from Etherscan:', response.data);
+		console.log('Received response from Etherscan:', response.data);
 
-        if (response.data.status === '1') {
-            console.log('Contract verification submitted successfully:', response.data.result);
-            return response.data.result; // Return the GUID
-        } else {
-            console.error('Contract verification submission failed:', response.data.result);
-            return false;
-        }
-    } catch (error) {
-        console.error('Error verifying contract:', error);
-        return false;
-    }
+		if (response.data.status === '1') {
+			console.log('Contract verification submitted successfully:', response.data.result);
+			return response.data.result; // Return the GUID
+		} else {
+			console.error('Contract verification submission failed:', response.data.result);
+			return false;
+		}
+	} catch (error) {
+		console.error('Error verifying contract:', error);
+		return false;
+	}
 }
 
 export async function checkVerificationStatus(guid: string): Promise<'Pending' | 'Pass' | 'Fail'> {
-    const apiUrl = 'https://api-sepolia.etherscan.io/api';
+	const apiUrl = 'https://api-sepolia.etherscan.io/api';
 
-    try {
-        const response = await axios.get(apiUrl, {
-            params: {
-                apikey: etherscanApiKey,
-                module: 'contract',
-                action: 'checkverifystatus',
-                guid: guid
-            }
-        });
+	try {
+		const response = await axios.get(apiUrl, {
+			params: {
+				apikey: etherscanApiKey,
+				module: 'contract',
+				action: 'checkverifystatus',
+				guid: guid
+			}
+		});
 
-        if (response.data.status === '1') {
-            return response.data.result as 'Pending' | 'Pass' | 'Fail';
-        } else {
-            console.error('Error checking verification status:', response.data.result);
-            return 'Pending';
-        }
-    } catch (error) {
-        console.error('Error checking verification status:', error);
-        return 'Pending';
-    }
+		if (response.data.status === '1') {
+			return response.data.result as 'Pending' | 'Pass' | 'Fail';
+		} else {
+			console.error('Error checking verification status:', response.data.result);
+			return 'Pending';
+		}
+	} catch (error) {
+		console.error('Error checking verification status:', error);
+		return 'Pending';
+	}
 }

@@ -152,7 +152,7 @@ const deployedContracts = {
   },
   11155111: {
     AttestationFactory: {
-      address: "0xB280d5A90Ebd6784aed718653307792A4E0Fb3dA",
+      address: "0xE847673d2D61CDc2D14711826da2Db35b695CDc2",
       abi: [
         {
           inputs: [
@@ -339,9 +339,9 @@ const deployedContracts = {
               type: "string",
             },
             {
-              internalType: "uint256[]",
+              internalType: "address[]",
               name: "_quotedAttestationId",
-              type: "uint256[]",
+              type: "address[]",
             },
             {
               internalType: "string[]",
@@ -441,7 +441,7 @@ const deployedContracts = {
       inheritedFunctions: {},
     },
     MainRegistry: {
-      address: "0x2A325B222A10D3Df6c1A2f298BF1151361876303",
+      address: "0x1Bf972E053f4d73e4B21c184cff1aFfB88221e14",
       abi: [
         {
           inputs: [
@@ -912,149 +912,6 @@ const deployedContracts = {
           ],
           stateMutability: "view",
           type: "function",
-        },
-      ],
-      inheritedFunctions: {},
-    },
-    YourContract: {
-      address: "0xe0b4bf9b94BDCC9902111445061604881d157516",
-      abi: [
-        {
-          inputs: [
-            {
-              internalType: "address",
-              name: "_owner",
-              type: "address",
-            },
-          ],
-          stateMutability: "nonpayable",
-          type: "constructor",
-        },
-        {
-          anonymous: false,
-          inputs: [
-            {
-              indexed: true,
-              internalType: "address",
-              name: "greetingSetter",
-              type: "address",
-            },
-            {
-              indexed: false,
-              internalType: "string",
-              name: "newGreeting",
-              type: "string",
-            },
-            {
-              indexed: false,
-              internalType: "bool",
-              name: "premium",
-              type: "bool",
-            },
-            {
-              indexed: false,
-              internalType: "uint256",
-              name: "value",
-              type: "uint256",
-            },
-          ],
-          name: "GreetingChange",
-          type: "event",
-        },
-        {
-          inputs: [],
-          name: "greeting",
-          outputs: [
-            {
-              internalType: "string",
-              name: "",
-              type: "string",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "owner",
-          outputs: [
-            {
-              internalType: "address",
-              name: "",
-              type: "address",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "premium",
-          outputs: [
-            {
-              internalType: "bool",
-              name: "",
-              type: "bool",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "string",
-              name: "_newGreeting",
-              type: "string",
-            },
-          ],
-          name: "setGreeting",
-          outputs: [],
-          stateMutability: "payable",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "totalCounter",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "address",
-              name: "",
-              type: "address",
-            },
-          ],
-          name: "userGreetingCounter",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "withdraw",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          stateMutability: "payable",
-          type: "receive",
         },
       ],
       inheritedFunctions: {},

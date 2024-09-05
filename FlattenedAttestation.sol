@@ -37,7 +37,7 @@ pragma solidity ^0.8.0;
  * can later be changed with {transferOwnership}.
  *
  * This module is used through inheritance. It will make available the modifier
- * `onlyOwner`, which can be applied to your functions to restrict their use to
+ * 'onlyOwner', which can be applied to your functions to restrict their use to
  * the owner.
  */
 abstract contract Ownable is Context {
@@ -76,7 +76,7 @@ abstract contract Ownable is Context {
 
     /**
      * @dev Leaves the contract without owner. It will not be possible to call
-     * `onlyOwner` functions. Can only be called by the current owner.
+     * 'onlyOwner' functions. Can only be called by the current owner.
      *
      * NOTE: Renouncing ownership will leave the contract without an owner,
      * thereby disabling any functionality that is only available to the owner.
@@ -86,7 +86,7 @@ abstract contract Ownable is Context {
     }
 
     /**
-     * @dev Transfers ownership of the contract to a new account (`newOwner`).
+     * @dev Transfers ownership of the contract to a new account ('newOwner').
      * Can only be called by the current owner.
      */
     function transferOwnership(address newOwner) public virtual onlyOwner {
@@ -95,7 +95,7 @@ abstract contract Ownable is Context {
     }
 
     /**
-     * @dev Transfers ownership of the contract to a new account (`newOwner`).
+     * @dev Transfers ownership of the contract to a new account ('newOwner').
      * Internal function without access restriction.
      */
     function _transferOwnership(address newOwner) internal virtual {
@@ -116,13 +116,13 @@ pragma solidity ^0.8.0;
 /**
  * @dev Contract module that helps prevent reentrant calls to a function.
  *
- * Inheriting from `ReentrancyGuard` will make the {nonReentrant} modifier
+ * Inheriting from 'ReentrancyGuard' will make the {nonReentrant} modifier
  * available, which can be applied to functions to make sure there are no nested
  * (reentrant) calls to them.
  *
- * Note that because there is a single `nonReentrant` guard, functions marked as
- * `nonReentrant` may not call one another. This can be worked around by making
- * those functions `private`, and then adding `external` `nonReentrant` entry
+ * Note that because there is a single 'nonReentrant' guard, functions marked as
+ * 'nonReentrant' may not call one another. This can be worked around by making
+ * those functions 'private', and then adding 'external' 'nonReentrant' entry
  * points to them.
  *
  * TIP: If you would like to learn more about reentrancy and alternative ways
@@ -152,10 +152,10 @@ abstract contract ReentrancyGuard {
 
     /**
      * @dev Prevents a contract from calling itself, directly or indirectly.
-     * Calling a `nonReentrant` function from another `nonReentrant`
+     * Calling a 'nonReentrant' function from another 'nonReentrant'
      * function is not supported. It is possible to prevent this from happening
-     * by making the `nonReentrant` function external, and making it call a
-     * `private` function that does the actual work.
+     * by making the 'nonReentrant' function external, and making it call a
+     * 'private' function that does the actual work.
      */
     modifier nonReentrant() {
         _nonReentrantBefore();
@@ -179,7 +179,7 @@ abstract contract ReentrancyGuard {
 
     /**
      * @dev Returns true if the reentrancy guard is currently set to "entered", which indicates there is a
-     * `nonReentrant` function in the call stack.
+     * 'nonReentrant' function in the call stack.
      */
     function _reentrancyGuardEntered() internal view returns (bool) {
         return _status == _ENTERED;
@@ -201,7 +201,7 @@ pragma solidity ^0.8.0;
 /**
  * @dev Wrappers over Solidity's arithmetic operations.
  *
- * NOTE: `SafeMath` is generally not needed starting with Solidity 0.8, since the compiler
+ * NOTE: 'SafeMath' is generally not needed starting with Solidity 0.8, since the compiler
  * now has built in overflow checking.
  */
 library SafeMath {
@@ -275,7 +275,7 @@ library SafeMath {
      * @dev Returns the addition of two unsigned integers, reverting on
      * overflow.
      *
-     * Counterpart to Solidity's `+` operator.
+     * Counterpart to Solidity's '+' operator.
      *
      * Requirements:
      *
@@ -289,7 +289,7 @@ library SafeMath {
      * @dev Returns the subtraction of two unsigned integers, reverting on
      * overflow (when the result is negative).
      *
-     * Counterpart to Solidity's `-` operator.
+     * Counterpart to Solidity's '-' operator.
      *
      * Requirements:
      *
@@ -303,7 +303,7 @@ library SafeMath {
      * @dev Returns the multiplication of two unsigned integers, reverting on
      * overflow.
      *
-     * Counterpart to Solidity's `*` operator.
+     * Counterpart to Solidity's '*' operator.
      *
      * Requirements:
      *
@@ -317,7 +317,7 @@ library SafeMath {
      * @dev Returns the integer division of two unsigned integers, reverting on
      * division by zero. The result is rounded towards zero.
      *
-     * Counterpart to Solidity's `/` operator.
+     * Counterpart to Solidity's '/' operator.
      *
      * Requirements:
      *
@@ -331,7 +331,7 @@ library SafeMath {
      * @dev Returns the remainder of dividing two unsigned integers. (unsigned integer modulo),
      * reverting when dividing by zero.
      *
-     * Counterpart to Solidity's `%` operator. This function uses a `revert`
+     * Counterpart to Solidity's '%' operator. This function uses a 'revert'
      * opcode (which leaves remaining gas untouched) while Solidity uses an
      * invalid opcode to revert (consuming all remaining gas).
      *
@@ -350,7 +350,7 @@ library SafeMath {
      * CAUTION: This function is deprecated because it requires allocating memory for the error
      * message unnecessarily. For custom revert reasons use {trySub}.
      *
-     * Counterpart to Solidity's `-` operator.
+     * Counterpart to Solidity's '-' operator.
      *
      * Requirements:
      *
@@ -367,8 +367,8 @@ library SafeMath {
      * @dev Returns the integer division of two unsigned integers, reverting with custom message on
      * division by zero. The result is rounded towards zero.
      *
-     * Counterpart to Solidity's `/` operator. Note: this function uses a
-     * `revert` opcode (which leaves remaining gas untouched) while Solidity
+     * Counterpart to Solidity's '/' operator. Note: this function uses a
+     * 'revert' opcode (which leaves remaining gas untouched) while Solidity
      * uses an invalid opcode to revert (consuming all remaining gas).
      *
      * Requirements:
@@ -389,7 +389,7 @@ library SafeMath {
      * CAUTION: This function is deprecated because it requires allocating memory for the error
      * message unnecessarily. For custom revert reasons use {tryMod}.
      *
-     * Counterpart to Solidity's `%` operator. This function uses a `revert`
+     * Counterpart to Solidity's '%' operator. This function uses a 'revert'
      * opcode (which leaves remaining gas untouched) while Solidity uses an
      * invalid opcode to revert (consuming all remaining gas).
      *
@@ -413,6 +413,14 @@ library SafeMath {
 
 pragma solidity ^0.8.0;
 
+/**
+ * @title Counters
+ * @author Matt Condon (@shrugs)
+ * @dev Provides counters that can only be incremented, decremented or reset. This can be used e.g. to track the number
+ * of elements in a mapping, issuing ERC721 ids, or counting request ids.
+ *
+ * Include with 'using Counters for Counters.Counter;'
+ */
 library Counters {
     struct Counter {
         // This variable should never be directly accessed by users of the library: interactions must be restricted to
@@ -709,7 +717,7 @@ contract Attestation is ReentrancyGuard {
 	address[] private contributors;
 	string public ipfsHash;
 	string public title;
-	uint256[] private quotedAttestationId; //related/quoted previous work/attestationID to create links
+	address[] private quotedAttestationId; //related/quoted previous work/attestationID to create links
 	string[] private tags;
 	uint256 public coPublishThreshold;
 	uint256 public verificationThreshold;
@@ -743,7 +751,7 @@ contract Attestation is ReentrancyGuard {
 		address[] memory _contributors,
 		string memory _title,
 		string memory _ipfsHash,
-		uint256[] memory _quotedAttestationId,
+		address[] memory _quotedAttestationId,
 		string[] memory _tags,
 		uint256 _coPublishThreshold,
 		uint256 _verificationThreshold
@@ -934,7 +942,7 @@ contract Attestation is ReentrancyGuard {
 	function getQuotesAttestationIds()
 		external
 		view
-		returns (uint256[] memory)
+		returns (address[] memory)
 	{
 		return quotedAttestationId;
 	}
@@ -949,7 +957,9 @@ contract AttestationFactory is Ownable {
 	event AttestationCreated(
 		address indexed attestationAddress,
 		address[] authors,
-		address[] contributors
+		address[] contributors,
+		string authorName,
+		string title
 	);
 	event VerificationThresholdUpdated(
 		uint256 oldThreshold,
@@ -1002,7 +1012,7 @@ contract AttestationFactory is Ownable {
 		address[] memory _contributors,
 		string memory _ipfsHash,
 		string memory _title,
-		uint256[] memory _quotedAttestationId,
+		address[] memory _quotedAttestationId,
 		string[] memory _tags,
 		uint256 _coPublishThreshold
 	) external returns (address) {
@@ -1040,7 +1050,7 @@ contract AttestationFactory is Ownable {
 		}
 
 		mainRegistry.addAttestation(attestationAddress, allParticipants);
-		emit AttestationCreated(attestationAddress, _authors, _contributors);
+		emit AttestationCreated(attestationAddress, _authors, _contributors, _authorName, _title);
 		return attestationAddress;
 	}
 }
