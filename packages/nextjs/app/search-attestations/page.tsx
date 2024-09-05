@@ -6,8 +6,14 @@ const url = 'https://api.studio.thegraph.com/query/87721/test-dcl-kp-tracker/ver
 
 // We'll use this query to fetch initial data
 const INITIAL_ATTESTATIONS = gql`
-  query InitialAttestations($first: Int!, $skip: Int!) {
-    attestations(first: $first, skip: $skip, orderBy: activatedAt, orderDirection: desc) {
+  query InitialAttestations($first: Int!, $skip: Int!, $orderBy: String!, $orderDirection: String!, $isActivated: Boolean) {
+    attestations(
+      first: $first, 
+      skip: $skip, 
+      orderBy: $orderBy, 
+      orderDirection: $orderDirection, 
+      where: { isActivated: $isActivated }
+    ) {
       id
       address
       authors
@@ -32,9 +38,15 @@ export default async function SearchAttestationsPage() {
     const queryClient = new QueryClient()
 
     await queryClient.prefetchQuery({
-        queryKey: ['initialAttestations', 0],
+        queryKey: ['initialAttestations', 0, 'activatedAt', 'desc', false],
         queryFn: async () => {
-            return request(url, INITIAL_ATTESTATIONS, { first: ITEMS_PER_PAGE, skip: 0 })
+            return request(url, INITIAL_ATTESTATIONS, {
+                first: ITEMS_PER_PAGE,
+                skip: 0,
+                orderBy: 'activatedAt',
+                orderDirection: 'desc',
+                isActivated: null // Initially fetch all attestations
+            })
         }
     })
 
