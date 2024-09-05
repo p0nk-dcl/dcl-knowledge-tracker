@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { gql, request } from 'graphql-request'
 import AttestationList from './AttestationList'
 import Fuse from 'fuse.js'
+import Map from './Map'
 
 const url = 'https://api.studio.thegraph.com/query/87721/test-dcl-kp-tracker/version/latest'
 
@@ -66,6 +67,8 @@ export default function SearchAttestations({ itemsPerPage }: SearchAttestationsP
     const [appliedWalletFilter, setAppliedWalletFilter] = useState('')
     const [appliedOrderBy, setAppliedOrderBy] = useState('activatedAt')
     const [appliedOrderDirection, setAppliedOrderDirection] = useState<'asc' | 'desc'>('desc')
+    const [showMap, setShowMap] = useState(false)
+    const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
 
     const { data, isLoading, error } = useQuery<QueryResult>({
         queryKey: ['attestations', currentPage, appliedOrderBy, appliedOrderDirection],
@@ -107,6 +110,12 @@ export default function SearchAttestations({ itemsPerPage }: SearchAttestationsP
         return filtered
     }, [data?.attestations, showActivatedOnly, searchTerm, appliedWalletFilter])
 
+    const attestationsWithLocation = useMemo(() => {
+        return filteredAttestations.filter(attestation =>
+            attestation.tags.some(tag => tag.startsWith('@loc:'))
+        )
+    }, [filteredAttestations])
+
     const resultCount = filteredAttestations.length
 
     if (isLoading) return <div>Loading...</div>
@@ -114,7 +123,15 @@ export default function SearchAttestations({ itemsPerPage }: SearchAttestationsP
 
     return (
         <div className="container mx-auto px-4 py-8">
-            <h1 className="text-3xl font-bold mb-8">Search Attestations</h1>
+            <div className="flex justify-between items-center mb-8">
+                <h1 className="text-3xl font-bold">Search Attestations</h1>
+                <button
+                    onClick={() => setShowMap(!showMap)}
+                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                >
+                    {showMap ? 'Show List' : 'Show Map'}
+                </button>
+            </div>
             <div className="mb-6 flex space-x-4">
                 <input
                     type="text"
@@ -188,14 +205,22 @@ export default function SearchAttestations({ itemsPerPage }: SearchAttestationsP
                 </div>
                 <div className="text-lg font-semibold">
                     {resultCount} {resultCount === 1 ? 'result' : 'results'} found
+                    {showMap && ` (${attestationsWithLocation.length} on map)`}
                 </div>
             </div>
-            <AttestationList
-                attestations={filteredAttestations}
-                itemsPerPage={itemsPerPage}
-                currentPage={currentPage}
-                onPageChange={setCurrentPage}
-            />
+            {showMap ? (
+                <Map
+                    attestations={attestationsWithLocation}
+                    onCountryClick={(country) => setSelectedCountry(country)}
+                />
+            ) : (
+                <AttestationList
+                    attestations={filteredAttestations}
+                    itemsPerPage={itemsPerPage}
+                    currentPage={currentPage}
+                    onPageChange={setCurrentPage}
+                />
+            )}
         </div>
     )
 }
