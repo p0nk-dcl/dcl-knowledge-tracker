@@ -1,8 +1,8 @@
 import { ethers } from 'ethers';
 import AttestationFactoryABI from '../../../hardhat/artifacts/contracts/AttestationFactory.sol/AttestationFactory.json';
 import { verifyContract, checkVerificationStatus } from '../../services/dcl/contractVerification';
-const attestationFactoryAddress = "0xf28B448330c9D36B34FbD773Db460036930fda1c"; //to replace when go mainnet
-const mainRegistryAddress = "0x343cE0Bedd16Ca2Df8Cb9f4D25987F3D23A6c00e"; //to replace when go mainnet
+const attestationFactoryAddress = "0xB280d5A90Ebd6784aed718653307792A4E0Fb3dA"; //to replace when go mainnet
+const mainRegistryAddress = "0x2A325B222A10D3Df6c1A2f298BF1151361876303"; //to replace when go mainnet
 const MAX_VERIFICATION_TIME = 5 * 60 * 1000; // 5 minutes in milliseconds
 const CHECK_INTERVAL = 30 * 1000; // 30 seconds in milliseconds
 
