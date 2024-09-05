@@ -152,7 +152,7 @@ const deployedContracts = {
   },
   11155111: {
     AttestationFactory: {
-      address: "0xf28B448330c9D36B34FbD773Db460036930fda1c",
+      address: "0xB280d5A90Ebd6784aed718653307792A4E0Fb3dA",
       abi: [
         {
           inputs: [
@@ -185,6 +185,18 @@ const deployedContracts = {
               internalType: "address[]",
               name: "contributors",
               type: "address[]",
+            },
+            {
+              indexed: false,
+              internalType: "string",
+              name: "authorName",
+              type: "string",
+            },
+            {
+              indexed: false,
+              internalType: "string",
+              name: "title",
+              type: "string",
             },
           ],
           name: "AttestationCreated",
@@ -429,7 +441,7 @@ const deployedContracts = {
       inheritedFunctions: {},
     },
     MainRegistry: {
-      address: "0x343cE0Bedd16Ca2Df8Cb9f4D25987F3D23A6c00e",
+      address: "0x2A325B222A10D3Df6c1A2f298BF1151361876303",
       abi: [
         {
           inputs: [
@@ -905,7 +917,7 @@ const deployedContracts = {
       inheritedFunctions: {},
     },
     YourContract: {
-      address: "0xd3F66dA00251437E17848C7cdE3cfdBC5C9c37c5",
+      address: "0xe0b4bf9b94BDCC9902111445061604881d157516",
       abi: [
         {
           inputs: [
