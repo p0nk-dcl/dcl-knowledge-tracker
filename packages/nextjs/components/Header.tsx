@@ -20,9 +20,12 @@ export const menuLinks: HeaderMenuLink[] = [
     href: "/",
   },
   {
-    label: "🔍 Attestations",
+    label: "👀 Attestations",
     href: "/attestation-viewer",
-    // icon: <BookOpenIcon className="h-4 w-4" />,
+  },
+  {
+    label: "🔎 Search",
+    href: "/search-attestations",
   },
   // {
   //   label: "Debug Contracts",
