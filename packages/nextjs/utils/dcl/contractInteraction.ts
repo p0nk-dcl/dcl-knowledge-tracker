@@ -27,8 +27,10 @@ const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 export async function createAttestation(
     walletClient: WalletClient,
     authors: string[],
+    authorName: string,
     contributors: string[],
     ipfsHash: string,
+    title: string,
     quotedAttestationId: string[],
     tags: string[],
     coPublishThreshold: string
@@ -55,7 +57,9 @@ export async function createAttestation(
         const txRequest = await contract.createAttestation.populateTransaction(
             authors,
             contributors,
+            authorName,
             ipfsHash,
+            title,
             quotedAttestationId.map(id => BigInt(id)),
             tags,
             ethers.parseEther(coPublishThreshold)
@@ -105,7 +109,8 @@ export async function createAttestation(
         console.log('New Attestation Address:', newAttestationAddress);
 
         // Start the verification process in the background
-        verifyAttestation(newAttestationAddress, authors, contributors, ipfsHash, quotedAttestationId, tags, coPublishThreshold);
+        verifyAttestation(newAttestationAddress, authors, authorName, contributors, ipfsHash, title, quotedAttestationId, tags, coPublishThreshold);
+
 
         // Return the attestation address immediately
         return newAttestationAddress;
@@ -123,8 +128,10 @@ export async function createAttestation(
 async function verifyAttestation(
     newAttestationAddress: string,
     authors: string[],
+    authorName: string,
     contributors: string[],
     ipfsHash: string,
+    title: string,
     quotedAttestationId: string[],
     tags: string[],
     coPublishThreshold: string
@@ -138,8 +145,10 @@ async function verifyAttestation(
         const constructorArgs = [
             mainRegistryAddress,
             authors,
+            authorName,
             contributors,
             ipfsHash,
+            title,
             quotedAttestationId.map(id => BigInt(id)),
             tags,
             ethers.parseEther(coPublishThreshold),

@@ -29,11 +29,13 @@ contract Attestation is ReentrancyGuard {
 	using SafeMath for uint256;
 	MainRegistry public mainRegistry;
 
-	address[] public authors;
-	address[] public contributors;
+	address[] private authors;
+	string public authorName;
+	address[] private contributors;
 	string public ipfsHash;
-	uint256[] public quotedAttestationId; //related/quoted previous work/attestationID to create links
-	string[] public tags;
+	string public title;
+	uint256[] private quotedAttestationId; //related/quoted previous work/attestationID to create links
+	string[] private tags;
 	uint256 public coPublishThreshold;
 	uint256 public verificationThreshold;
 
@@ -42,7 +44,7 @@ contract Attestation is ReentrancyGuard {
 	bool public isActivated;
 
 	mapping(address => bool) public isCoPublisher;
-	address[] public coPublishers;
+	address[] private coPublishers;
 
 	uint256 public upvoteCount;
 	mapping(address => bool) public hasUpvoted;
@@ -62,7 +64,9 @@ contract Attestation is ReentrancyGuard {
 	constructor(
 		address _mainRegistryAddress,
 		address[] memory _authors,
+		string memory _authorName,
 		address[] memory _contributors,
+		string memory _title,
 		string memory _ipfsHash,
 		uint256[] memory _quotedAttestationId,
 		string[] memory _tags,
@@ -71,8 +75,10 @@ contract Attestation is ReentrancyGuard {
 	) {
 		mainRegistry = MainRegistry(_mainRegistryAddress);
 		authors = _authors;
+		authorName = _authorName;
 		contributors = _contributors;
 		ipfsHash = _ipfsHash;
+		title = _title;
 		quotedAttestationId = _quotedAttestationId;
 		tags = _tags;
 		coPublishThreshold = _coPublishThreshold;
@@ -279,7 +285,7 @@ contract AttestationFactory is Ownable {
 
 	constructor(address _mainRegistryAddress) {
 		mainRegistry = MainRegistry(_mainRegistryAddress);
-        authorizedAddresses[msg.sender] = true;
+		authorizedAddresses[msg.sender] = true;
 	}
 
 	modifier onlyAuthorized() {
@@ -317,8 +323,10 @@ contract AttestationFactory is Ownable {
 
 	function createAttestation(
 		address[] memory _authors,
+		string memory _authorName,
 		address[] memory _contributors,
 		string memory _ipfsHash,
+		string memory _title,
 		uint256[] memory _quotedAttestationId,
 		string[] memory _tags,
 		uint256 _coPublishThreshold
@@ -326,8 +334,10 @@ contract AttestationFactory is Ownable {
 		Attestation newAttestation = new Attestation(
 			address(mainRegistry),
 			_authors,
+			_authorName,
 			_contributors,
 			_ipfsHash,
+			_title,
 			_quotedAttestationId,
 			_tags,
 			_coPublishThreshold,

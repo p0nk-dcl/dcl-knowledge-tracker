@@ -206,10 +206,16 @@ const Home: NextPage = () => {
     // Prepare data for smart contract interaction
     console.log('Prepare data for smart contract interaction');
     const authors = formData.authorWallet ? formData.authorWallet.split(',').map(t => t.trim()) : [];//[formData.authorWallet || connectedAddress || ''];
+    const authorName = formData.authorName;
     const contributors = formData.contributors
       ? formData.contributors.split(',').map(c => c.split(':')[1].trim())
       : [];
     const ipfsHash = metadataUrl.split('/').pop() || '';
+    const title = formData.title
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-zA-Z0-9\s]/g, "")
+      .toLowerCase();
     const quotedAttestationId = formData.existingWorkId
       ? [formData.existingWorkId]
       : [];
@@ -221,8 +227,10 @@ const Home: NextPage = () => {
     const newAttestationAddress = await createAttestation(
       walletClient,
       authors,
+      authorName,
       contributors,
       ipfsHash,
+      title,
       quotedAttestationId,
       tags,
       formData.coPublishThreshold
@@ -442,6 +450,19 @@ const Home: NextPage = () => {
         <div className="mt-16">
           <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
             <div className="bg-white p-6 rounded-lg shadow-md">
+              <DocumentTextIcon className="h-12 w-12 text-green-500 mb-4" />
+              <h3 className="text-xl font-semibold mb-2">See Your Attestation</h3>
+              <p className="text-gray-600 mb-4">
+                Examine the work you have attested.
+              </p>
+              <Link
+                href="/blockexplorer"
+                className="text-green-500 hover:text-green-600 font-medium"
+              >
+                Open Attestation Viewer
+              </Link>
+            </div>
+            <div className="bg-white p-6 rounded-lg shadow-md">
               <GlobeAltIcon className="h-12 w-12 text-green-500 mb-4" />
               <h3 className="text-xl font-semibold mb-2">Browse Attestations</h3>
               <p className="text-gray-600 mb-4">
@@ -451,20 +472,7 @@ const Home: NextPage = () => {
                 href="/attestation-viewer"
                 className="text-green-500 hover:text-green-600 font-medium"
               >
-                Go to Viewer
-              </Link>
-            </div>
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <DocumentTextIcon className="h-12 w-12 text-green-500 mb-4" />
-              <h3 className="text-xl font-semibold mb-2">Block Explorer</h3>
-              <p className="text-gray-600 mb-4">
-                Examine your local transactions and blockchain activity.
-              </p>
-              <Link
-                href="/blockexplorer"
-                className="text-green-500 hover:text-green-600 font-medium"
-              >
-                Open Block Explorer
+                Go to Search Page
               </Link>
             </div>
           </div>
