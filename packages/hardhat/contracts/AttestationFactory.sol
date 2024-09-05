@@ -34,7 +34,7 @@ contract Attestation is ReentrancyGuard {
 	address[] private contributors;
 	string public ipfsHash;
 	string public title;
-	uint256[] private quotedAttestationId; //related/quoted previous work/attestationID to create links
+	address[] private quotedAttestationId; //related/quoted previous work/attestationID to create links
 	string[] private tags;
 	uint256 public coPublishThreshold;
 	uint256 public verificationThreshold;
@@ -68,7 +68,7 @@ contract Attestation is ReentrancyGuard {
 		address[] memory _contributors,
 		string memory _title,
 		string memory _ipfsHash,
-		uint256[] memory _quotedAttestationId,
+		address[] memory _quotedAttestationId,
 		string[] memory _tags,
 		uint256 _coPublishThreshold,
 		uint256 _verificationThreshold
@@ -259,7 +259,7 @@ contract Attestation is ReentrancyGuard {
 	function getQuotesAttestationIds()
 		external
 		view
-		returns (uint256[] memory)
+		returns (address[] memory)
 	{
 		return quotedAttestationId;
 	}
@@ -329,7 +329,7 @@ contract AttestationFactory is Ownable {
 		address[] memory _contributors,
 		string memory _ipfsHash,
 		string memory _title,
-		uint256[] memory _quotedAttestationId,
+		address[] memory _quotedAttestationId,
 		string[] memory _tags,
 		uint256 _coPublishThreshold
 	) external returns (address) {

@@ -56,11 +56,11 @@ export async function createAttestation(
         console.log("Preparing transaction...");
         const txRequest = await contract.createAttestation.populateTransaction(
             authors,
-            contributors,
             authorName,
+            contributors,
             ipfsHash,
             title,
-            quotedAttestationId.map(id => BigInt(id)),
+            quotedAttestationId, // Pass the array of addresses directly
             tags,
             ethers.parseEther(coPublishThreshold)
         );
