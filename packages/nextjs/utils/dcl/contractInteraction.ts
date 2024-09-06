@@ -29,8 +29,8 @@ export async function createAttestation(
     authors: string[],
     authorName: string,
     contributors: string[],
-    ipfsHash: string,
     title: string,
+    ipfsHash: string,
     quotedAttestationId: string[],
     tags: string[],
     coPublishThreshold: string
@@ -60,7 +60,7 @@ export async function createAttestation(
             contributors,
             ipfsHash,
             title,
-            quotedAttestationId, // Pass the array of addresses directly
+            quotedAttestationId,
             tags,
             ethers.parseEther(coPublishThreshold)
         );
@@ -109,7 +109,7 @@ export async function createAttestation(
         console.log('New Attestation Address:', newAttestationAddress);
 
         // Start the verification process in the background
-        verifyAttestation(newAttestationAddress, authors, authorName, contributors, ipfsHash, title, quotedAttestationId, tags, coPublishThreshold);
+        verifyAttestation(newAttestationAddress, authors, authorName, contributors, title, ipfsHash, quotedAttestationId, tags, coPublishThreshold);
 
 
         // Return the attestation address immediately
@@ -130,8 +130,8 @@ async function verifyAttestation(
     authors: string[],
     authorName: string,
     contributors: string[],
-    ipfsHash: string,
     title: string,
+    ipfsHash: string,
     quotedAttestationId: string[],
     tags: string[],
     coPublishThreshold: string
