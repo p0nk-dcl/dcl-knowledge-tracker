@@ -27,20 +27,24 @@ import "./MainRegistry.sol";
  */
 contract Attestation is ReentrancyGuard {
 	using SafeMath for uint256;
+	MainRegistry public mainRegistry;
 
-	address[] public authors;
-	address[] public contributors;
+	address[] private authors;
+	string public authorName;
+	address[] private contributors;
 	string public ipfsHash;
-	uint256[] public quotedAttestationId; //related/quoted previous work/attestationID to create links
-	string[] public tags;
+	string public title;
+	address[] private quotedAttestationId; //related/quoted previous work/attestationID to create links
+	string[] private tags;
 	uint256 public coPublishThreshold;
+	uint256 public verificationThreshold;
 
 	mapping(address => bool) public hasSigned;
 	uint256 public signatureCount;
 	bool public isActivated;
 
 	mapping(address => bool) public isCoPublisher;
-	address[] public coPublishers;
+	address[] private coPublishers;
 
 	uint256 public upvoteCount;
 	mapping(address => bool) public hasUpvoted;
@@ -58,19 +62,27 @@ contract Attestation is ReentrancyGuard {
 	event CoPublishThresholdUpdated(uint256 oldThreshold, uint256 newThreshold);
 
 	constructor(
+		address _mainRegistryAddress,
 		address[] memory _authors,
+		string memory _authorName,
 		address[] memory _contributors,
+		string memory _title,
 		string memory _ipfsHash,
-		uint256[] memory _quotedAttestationId,
+		address[] memory _quotedAttestationId,
 		string[] memory _tags,
-		uint256 _coPublishThreshold
+		uint256 _coPublishThreshold,
+		uint256 _verificationThreshold
 	) {
+		mainRegistry = MainRegistry(_mainRegistryAddress);
 		authors = _authors;
+		authorName = _authorName;
 		contributors = _contributors;
 		ipfsHash = _ipfsHash;
+		title = _title;
 		quotedAttestationId = _quotedAttestationId;
 		tags = _tags;
 		coPublishThreshold = _coPublishThreshold;
+		verificationThreshold = _verificationThreshold;
 		// Automatically sign the contract for the first author
 		_sign(authors[0]);
 	}
@@ -78,15 +90,6 @@ contract Attestation is ReentrancyGuard {
 	function _sign(address author) internal {
 		require(!hasSigned[author], "Author has already signed.");
 		hasSigned[author] = true;
-		emit ContributorSigned(author);
-	}
-
-	function sign() external {
-		require(!isActivated, "Attestation already activated");
-		require(isContributor(msg.sender), "Not a contributor");
-		require(!hasSigned[msg.sender], "Already signed");
-
-		hasSigned[msg.sender] = true;
 		signatureCount++;
 
 		if (signatureCount == contributors.length + authors.length) {
@@ -94,7 +97,13 @@ contract Attestation is ReentrancyGuard {
 			emit AttestationActivated();
 		}
 
-		emit ContributorSigned(msg.sender);
+		emit ContributorSigned(author);
+	}
+
+	function sign() external {
+		require(!isActivated, "Attestation already activated");
+		require(isContributor(msg.sender), "Not a contributor");
+		_sign(msg.sender);
 	}
 
 	//missing amount for donation (and if the fund > threshold => co-publisher ?)
@@ -139,6 +148,13 @@ contract Attestation is ReentrancyGuard {
 		uint256 amount = unclaimedFunds[msg.sender];
 		require(amount > 0, "No funds to claim");
 
+		if (totalReceivedFunds >= verificationThreshold) {
+			require(
+				isVerifiedAuthor(msg.sender),
+				"Author(s) needs to be verified!"
+			);
+		}
+
 		unclaimedFunds[msg.sender] = 0;
 		payable(msg.sender).transfer(amount);
 
@@ -170,6 +186,10 @@ contract Attestation is ReentrancyGuard {
 			}
 		}
 		return false;
+	}
+
+	function isVerifiedAuthor(address _address) internal view returns (bool) {
+		return isAuthor(_address) && mainRegistry.isWalletVerified(_address);
 	}
 
 	//Contributors here are author+co-authors+contributors
@@ -239,41 +259,91 @@ contract Attestation is ReentrancyGuard {
 	function getQuotesAttestationIds()
 		external
 		view
-		returns (uint256[] memory)
+		returns (address[] memory)
 	{
 		return quotedAttestationId;
 	}
 }
 
 // #ATTESTATION FACTORY CONTRACT
-contract AttestationFactory {
+contract AttestationFactory is Ownable {
 	MainRegistry public mainRegistry;
+	uint256 public _verificationThreshold = 0.05 ether;
+	mapping(address => bool) public authorizedAddresses;
 
 	event AttestationCreated(
 		address indexed attestationAddress,
 		address[] authors,
-		address[] contributors
+		address[] contributors,
+		string authorName,
+		string title
 	);
+	event VerificationThresholdUpdated(
+		uint256 oldThreshold,
+		uint256 newThreshold
+	);
+	event AuthorizedAddressAdded(address indexed newAuthorized);
+	event AuthorizedAddressRemoved(address indexed removedAuthorized);
 
 	constructor(address _mainRegistryAddress) {
 		mainRegistry = MainRegistry(_mainRegistryAddress);
+		authorizedAddresses[msg.sender] = true;
+	}
+
+	modifier onlyAuthorized() {
+		require(authorizedAddresses[msg.sender], "Not authorized");
+		_;
+	}
+
+	function setVerificationThreshold(
+		uint256 newThreshold
+	) external onlyAuthorized {
+		uint256 oldThreshold = _verificationThreshold;
+		_verificationThreshold = newThreshold;
+		emit VerificationThresholdUpdated(oldThreshold, newThreshold);
+	}
+
+	function addAuthorizedAddress(address newAuthorized) external onlyOwner {
+		require(
+			!authorizedAddresses[newAuthorized],
+			"Address already authorized"
+		);
+		authorizedAddresses[newAuthorized] = true;
+		emit AuthorizedAddressAdded(newAuthorized);
+	}
+
+	function removeAuthorizedAddress(
+		address authorizedToRemove
+	) external onlyOwner {
+		require(
+			authorizedAddresses[authorizedToRemove],
+			"Address not authorized"
+		);
+		authorizedAddresses[authorizedToRemove] = false;
+		emit AuthorizedAddressRemoved(authorizedToRemove);
 	}
 
 	function createAttestation(
 		address[] memory _authors,
+		string memory _authorName,
 		address[] memory _contributors,
-		string memory _ipfsHash, //contains in a json format all the metadata
-		uint256[] memory _quotedAttestationId, //related/quoted previous work/attestationID to create links
+		string memory _ipfsHash,
+		string memory _title,
+		address[] memory _quotedAttestationId,
 		string[] memory _tags,
-		uint256 _coPublishThreshold //min amount in native currency of donation to be added as co-publisher
+		uint256 _coPublishThreshold
 	) external returns (address) {
 		Attestation newAttestation = new Attestation(
+			address(mainRegistry),
 			_authors,
+			_authorName,
 			_contributors,
 			_ipfsHash,
+			_title,
 			_quotedAttestationId,
 			_tags,
-			_coPublishThreshold
+			_coPublishThreshold,
+			_verificationThreshold
 		);
 
 		address attestationAddress = address(newAttestation);
@@ -288,8 +358,16 @@ contract AttestationFactory {
 			allParticipants[_authors.length + i] = _contributors[i];
 		}
 
+		// Ensure all participants are registered in the MainRegistry
+		for (uint i = 0; i < allParticipants.length; i++) {
+			if (mainRegistry.walletToUserId(allParticipants[i]) == 0) {
+				// If the wallet is not associated with any user, create a new user with an empty username
+				mainRegistry.registerUser("");
+			}
+		}
+
 		mainRegistry.addAttestation(attestationAddress, allParticipants);
-		emit AttestationCreated(attestationAddress, _authors, _contributors);
+		emit AttestationCreated(attestationAddress, _authors, _contributors, _authorName, _title);
 		return attestationAddress;
 	}
 }

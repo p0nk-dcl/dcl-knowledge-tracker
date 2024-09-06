@@ -37,10 +37,33 @@
   },
   "packageManager": "yarn@3.2.3",
   "devDependencies": {
+    "@nomicfoundation/hardhat-verify": "^2.0.9",
+    "@types/react-simple-maps": "^3.0.6",
+    "@types/svgdom": "^0.1.2",
+    "@types/topojson-client": "^3.1.4",
     "husky": "^8.0.1",
     "lint-staged": "^13.0.3"
   },
   "engines": {
     "node": ">=18.17.0"
+  },
+  "dependencies": {
+    "@nomicfoundation/ethereumjs-util": "^9.0.4",
+    "@svgdotjs/svg.js": "^3.2.4",
+    "axios": "^1.7.4",
+    "canvas": "^2.11.2",
+    "ethers": "^6.13.2",
+    "fuse.js": "^7.0.0",
+    "graphql-request": "^7.1.0",
+    "has": "^1.0.4",
+    "inherits": "^2.0.4",
+    "qrcode.react": "^3.1.0",
+    "react-force-graph-2d": "^1.25.5",
+    "react-infinite-scroll-component": "^6.1.0",
+    "react-simple-maps": "^3.0.0",
+    "react-tooltip": "^5.28.0",
+    "svgdom": "^0.1.19",
+    "topojson-client": "^3.1.0",
+    "world-atlas": "^2.0.2"
   }
 }
