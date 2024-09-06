@@ -1067,8 +1067,7 @@ contract AttestationFactory is Ownable {
 		emit AttestationCreated(attestationAddress, _authors, _contributors, _authorName, _title);
 		return attestationAddress;
 	}
-}
-`;
+}`;
 
 //replace with : https://api.etherscan.io/api for mainnet; sepolia: https://api-sepolia.etherscan.io/api
 export async function verifyContract(params: VerificationParams): Promise<string | false> {
@@ -1080,7 +1079,7 @@ export async function verifyContract(params: VerificationParams): Promise<string
 		// ABI encode constructor arguments
 		const abiCoder = new ethers.AbiCoder();
 		const encodedConstructorArgs = abiCoder.encode(
-			['address', 'string', 'address[]', 'address[]', 'string', 'string', 'uint256[]', 'string[]', 'uint256', 'uint256'],
+			['address[]', 'string', 'address[]', 'string', 'string', 'address[]', 'string[]', 'uint256'],
 			params.constructorArguments
 		).slice(2); // remove '0x' prefix
 
