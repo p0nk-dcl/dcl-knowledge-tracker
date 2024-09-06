@@ -152,7 +152,7 @@ const deployedContracts = {
   },
   11155111: {
     AttestationFactory: {
-      address: "0xe06D5F27bB990Ce83002F2B97F651BA1899d9eE0",
+      address: "0xE847673d2D61CDc2D14711826da2Db35b695CDc2",
       abi: [
         {
           inputs: [
@@ -185,6 +185,18 @@ const deployedContracts = {
               internalType: "address[]",
               name: "contributors",
               type: "address[]",
+            },
+            {
+              indexed: false,
+              internalType: "string",
+              name: "authorName",
+              type: "string",
+            },
+            {
+              indexed: false,
+              internalType: "string",
+              name: "title",
+              type: "string",
             },
           ],
           name: "AttestationCreated",
@@ -307,6 +319,11 @@ const deployedContracts = {
               type: "address[]",
             },
             {
+              internalType: "string",
+              name: "_authorName",
+              type: "string",
+            },
+            {
               internalType: "address[]",
               name: "_contributors",
               type: "address[]",
@@ -317,9 +334,14 @@ const deployedContracts = {
               type: "string",
             },
             {
-              internalType: "uint256[]",
+              internalType: "string",
+              name: "_title",
+              type: "string",
+            },
+            {
+              internalType: "address[]",
               name: "_quotedAttestationId",
-              type: "uint256[]",
+              type: "address[]",
             },
             {
               internalType: "string[]",
@@ -419,7 +441,7 @@ const deployedContracts = {
       inheritedFunctions: {},
     },
     MainRegistry: {
-      address: "0xa8f3Ec9865196a96d4C157A7965fAfF7ed46Ee97",
+      address: "0x1Bf972E053f4d73e4B21c184cff1aFfB88221e14",
       abi: [
         {
           inputs: [
@@ -890,149 +912,6 @@ const deployedContracts = {
           ],
           stateMutability: "view",
           type: "function",
-        },
-      ],
-      inheritedFunctions: {},
-    },
-    YourContract: {
-      address: "0xDB56CD7c08D4660aFe265e2cDB7097A7355A4654",
-      abi: [
-        {
-          inputs: [
-            {
-              internalType: "address",
-              name: "_owner",
-              type: "address",
-            },
-          ],
-          stateMutability: "nonpayable",
-          type: "constructor",
-        },
-        {
-          anonymous: false,
-          inputs: [
-            {
-              indexed: true,
-              internalType: "address",
-              name: "greetingSetter",
-              type: "address",
-            },
-            {
-              indexed: false,
-              internalType: "string",
-              name: "newGreeting",
-              type: "string",
-            },
-            {
-              indexed: false,
-              internalType: "bool",
-              name: "premium",
-              type: "bool",
-            },
-            {
-              indexed: false,
-              internalType: "uint256",
-              name: "value",
-              type: "uint256",
-            },
-          ],
-          name: "GreetingChange",
-          type: "event",
-        },
-        {
-          inputs: [],
-          name: "greeting",
-          outputs: [
-            {
-              internalType: "string",
-              name: "",
-              type: "string",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "owner",
-          outputs: [
-            {
-              internalType: "address",
-              name: "",
-              type: "address",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "premium",
-          outputs: [
-            {
-              internalType: "bool",
-              name: "",
-              type: "bool",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "string",
-              name: "_newGreeting",
-              type: "string",
-            },
-          ],
-          name: "setGreeting",
-          outputs: [],
-          stateMutability: "payable",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "totalCounter",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "address",
-              name: "",
-              type: "address",
-            },
-          ],
-          name: "userGreetingCounter",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "withdraw",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          stateMutability: "payable",
-          type: "receive",
         },
       ],
       inheritedFunctions: {},

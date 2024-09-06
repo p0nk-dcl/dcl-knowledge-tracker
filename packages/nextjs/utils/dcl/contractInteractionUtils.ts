@@ -11,6 +11,9 @@ export interface AttestationData {
     coPublishThreshold: bigint;
     isActivated: boolean;
     upvoteCount: bigint;
+    totalReceivedFunds: bigint;
+    signatureCount: bigint;
+    currentBalance: bigint;
 }
 
 interface WalletClient {
@@ -46,6 +49,9 @@ export async function getAttestationData(
     const coPublishThreshold = await contract.coPublishThreshold();
     const isActivated = await contract.isActivated();
     const upvoteCount = await contract.upvoteCount();
+    const totalReceivedFunds = await contract.totalReceivedFunds();
+    const signatureCount = await contract.signatureCount();
+    const currentBalance = await provider.getBalance(address);
 
     // Construct and return the AttestationData object
     return {
@@ -57,7 +63,10 @@ export async function getAttestationData(
         tags,
         coPublishThreshold,
         isActivated,
-        upvoteCount
+        upvoteCount,
+        totalReceivedFunds,
+        signatureCount,
+        currentBalance
     };
 }
 
@@ -137,23 +146,45 @@ export async function likeAttestation(
     await provider.waitForTransaction(txHash);
 }
 
-export async function donateToAttestation(
+export const donateToAttestation = async (
     walletClient: WalletClient,
     attestationAddress: string,
-    amount: string
-): Promise<void> {
+    amount: bigint
+) => {
     const provider = await walletClientToEthersProvider(walletClient);
     const signer = await provider.getSigner(walletClient.account.address);
     const contract = new ethers.Contract(attestationAddress, AttestationABI.abi, signer);
 
-    const txRequest = await contract.donate.populateTransaction({
-        value: ethers.parseEther(amount)
-    });
+    try {
+        const txRequest = await contract.donate.populateTransaction(amount, {
+            value: amount,
+        });
 
-    const txHash = await walletClient.sendTransaction({
-        ...txRequest,
-        from: walletClient.account.address
-    });
+        const txHash = await walletClient.sendTransaction({
+            ...txRequest,
+            from: walletClient.account.address
+        });
 
-    await provider.waitForTransaction(txHash);
-}
+        await provider.waitForTransaction(txHash);
+        console.log('Donation successful');
+    } catch (error) {
+        console.error('Error donating:', error);
+        throw error;
+    }
+};
+
+export const claimFunds = async (walletClient: WalletClient, attestationAddress: string) => {
+    try {
+        const provider = new ethers.BrowserProvider(walletClient.transport);
+        const signer = await provider.getSigner();
+        const contract = new ethers.Contract(attestationAddress, AttestationABI.abi, signer);
+
+        const tx = await contract.claimFunds();
+        await tx.wait();
+
+        return { success: true, message: "Funds claimed successfully" };
+    } catch (error) {
+        console.error("Error claiming funds:", error);
+        return { success: false, message: "Failed to claim funds" };
+    }
+};

@@ -1,8 +1,8 @@
 import { ethers } from 'ethers';
 import AttestationFactoryABI from '../../../hardhat/artifacts/contracts/AttestationFactory.sol/AttestationFactory.json';
 import { verifyContract, checkVerificationStatus } from '../../services/dcl/contractVerification';
-const attestationFactoryAddress = "0xe06D5F27bB990Ce83002F2B97F651BA1899d9eE0"; //to replace when go mainnet
-const mainRegistryAddress = "0xa8f3Ec9865196a96d4C157A7965fAfF7ed46Ee97"; //to replace when go mainnet
+const attestationFactoryAddress = "0xE847673d2D61CDc2D14711826da2Db35b695CDc2"; //to replace when go mainnet
+const mainRegistryAddress = "0x1Bf972E053f4d73e4B21c184cff1aFfB88221e14"; //to replace when go mainnet
 const MAX_VERIFICATION_TIME = 5 * 60 * 1000; // 5 minutes in milliseconds
 const CHECK_INTERVAL = 30 * 1000; // 30 seconds in milliseconds
 
@@ -27,7 +27,9 @@ const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 export async function createAttestation(
     walletClient: WalletClient,
     authors: string[],
+    authorName: string,
     contributors: string[],
+    title: string,
     ipfsHash: string,
     quotedAttestationId: string[],
     tags: string[],
@@ -54,9 +56,11 @@ export async function createAttestation(
         console.log("Preparing transaction...");
         const txRequest = await contract.createAttestation.populateTransaction(
             authors,
+            authorName,
             contributors,
             ipfsHash,
-            quotedAttestationId.map(id => BigInt(id)),
+            title,
+            quotedAttestationId,
             tags,
             ethers.parseEther(coPublishThreshold)
         );
@@ -104,6 +108,35 @@ export async function createAttestation(
 
         console.log('New Attestation Address:', newAttestationAddress);
 
+        // Start the verification process in the background
+        verifyAttestation(newAttestationAddress, authors, authorName, contributors, title, ipfsHash, quotedAttestationId, tags, coPublishThreshold);
+
+
+        // Return the attestation address immediately
+        return newAttestationAddress;
+
+    } catch (error: unknown) {
+        console.error('Error creating attestation:', error);
+        if (error instanceof Error) {
+            throw new Error(`Failed to create attestation: ${error.message}`);
+        } else {
+            throw new Error('An unknown error occurred while creating the attestation');
+        }
+    }
+}
+
+async function verifyAttestation(
+    newAttestationAddress: string,
+    authors: string[],
+    authorName: string,
+    contributors: string[],
+    title: string,
+    ipfsHash: string,
+    quotedAttestationId: string[],
+    tags: string[],
+    coPublishThreshold: string
+) {
+    try {
         // Add a delay before verification (e.g., 30 seconds)
         console.log('Waiting for 30 seconds before attempting verification...');
         await delay(30000);
@@ -112,8 +145,10 @@ export async function createAttestation(
         const constructorArgs = [
             mainRegistryAddress,
             authors,
+            authorName,
             contributors,
             ipfsHash,
+            title,
             quotedAttestationId.map(id => BigInt(id)),
             tags,
             ethers.parseEther(coPublishThreshold),
@@ -147,15 +182,9 @@ export async function createAttestation(
             console.warn('Contract verification submission failed.');
             finalStatus = 'Fail';
         }
-        console.log('Final verification status:', finalStatus);
-        return newAttestationAddress;
+        console.warn('Final verification status:', finalStatus);
 
     } catch (error: unknown) {
-        console.error('Error creating attestation:', error);
-        if (error instanceof Error) {
-            throw new Error(`Failed to create attestation: ${error.message}`);
-        } else {
-            throw new Error('An unknown error occurred while creating the attestation');
-        }
+        console.error('Error verifying attestation:', error);
     }
 }

@@ -1,0 +1,190 @@
+type AttestationAddedToWallet @entity(immutable: true) {
+  id: Bytes!
+  wallet: Bytes! # address
+  attestationId: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type AttestationCreated @entity(immutable: true) {
+  id: Bytes!
+  attestationId: BigInt! # uint256
+  attestationAddress: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type UserNameUpdated @entity(immutable: true) {
+  id: Bytes!
+  userId: BigInt! # uint256
+  newUserName: String! # string
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type UserRegistered @entity(immutable: true) {
+  id: Bytes!
+  userId: BigInt! # uint256
+  userName: String! # string
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type WalletAdded @entity(immutable: true) {
+  id: Bytes!
+  userId: BigInt! # uint256
+  wallet: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type WalletVerified @entity(immutable: true) {
+  id: Bytes!
+  wallet: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+type AttestationFactoryAttestationCreated @entity(immutable: true) {
+  id: Bytes!
+  attestationAddress: Bytes! # address
+  authors: [Bytes!]! # address[]
+  contributors: [Bytes!]! # address[]
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type AuthorizedAddressAdded @entity(immutable: true) {
+  id: Bytes!
+  newAuthorized: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type AuthorizedAddressRemoved @entity(immutable: true) {
+  id: Bytes!
+  removedAuthorized: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type OwnershipTransferred @entity(immutable: true) {
+  id: Bytes!
+  previousOwner: Bytes! # address
+  newOwner: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type VerificationThresholdUpdated @entity(immutable: true) {
+  id: Bytes!
+  oldThreshold: BigInt! # uint256
+  newThreshold: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type Attestation @entity {
+  id: ID!
+  address: Bytes!
+  authors: [Bytes!]
+  contributors: [Bytes!]
+  isActivated: Boolean
+  activatedAt: BigInt
+  coPublishers: [Bytes!]
+  upvotes: BigInt!
+  fundsReceived: BigInt!
+  fundsClaimed: BigInt!
+  affiliations: [Bytes!]
+  coPublishThreshold: BigInt
+  tags: [String!]!
+  ipfsHash: String!
+  quotedAttestationId: [BigInt!]!
+  signatureCount: BigInt!
+  totalReceivedFunds: BigInt!
+  upvoteCount: BigInt!
+}
+
+type ContributorSigned @entity(immutable: true) {
+  id: Bytes!
+  contributor: Bytes! # address
+  attestation: Attestation!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type AttestationActivated @entity(immutable: true) {
+  id: Bytes!
+  attestation: Attestation!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type CoPublisherAdded @entity(immutable: true) {
+  id: Bytes!
+  coPublisher: Bytes! # address
+  attestation: Attestation!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type Upvoted @entity(immutable: true) {
+  id: Bytes!
+  upvoter: Bytes! # address
+  attestation: Attestation!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type FundsReceived @entity(immutable: true) {
+  id: Bytes!
+  sender: Bytes! # address
+  amount: BigInt! # uint256
+  attestation: Attestation!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type FundsClaimed @entity(immutable: true) {
+  id: Bytes!
+  claimer: Bytes! # address
+  amount: BigInt! # uint256
+  attestation: Attestation!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type AffiliationRevoked @entity(immutable: true) {
+  id: Bytes!
+  contributor: Bytes! # address
+  attestation: Attestation!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type CoPublishThresholdUpdated @entity(immutable: true) {
+  id: Bytes!
+  oldThreshold: BigInt! # uint256
+  newThreshold: BigInt! # uint256
+  attestation: Attestation!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
