@@ -1079,7 +1079,7 @@ export async function verifyContract(params: VerificationParams): Promise<string
 		// ABI encode constructor arguments
 		const abiCoder = new ethers.AbiCoder();
 		const encodedConstructorArgs = abiCoder.encode(
-			['address[]', 'string', 'address[]', 'string', 'string', 'address[]', 'string[]', 'uint256'],
+			['address', 'address[]', 'string', 'address[]', 'string', 'string', 'address[]', 'string[]', 'uint256', 'uint256'],
 			params.constructorArguments
 		).slice(2); // remove '0x' prefix
 
