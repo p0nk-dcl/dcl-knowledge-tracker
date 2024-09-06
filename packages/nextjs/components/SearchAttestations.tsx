@@ -25,6 +25,8 @@ const FETCH_ATTESTATIONS = gql`
       totalReceivedFunds
       upvoteCount
       coPublishers
+      title
+      authorName
     }
   }
 `
@@ -40,7 +42,6 @@ interface QueryResult {
         address: string
         authors: string[]
         contributors: string[]
-        // copublishers: string[]
         isActivated: boolean
         activatedAt: string
         upvotes: string
@@ -53,6 +54,8 @@ interface QueryResult {
         totalReceivedFunds: string
         upvoteCount: string
         coPublishers: string[]
+        title: string
+        authorName: string
     }>
 }
 
@@ -84,6 +87,8 @@ export default function SearchAttestations({ itemsPerPage }: SearchAttestationsP
         staleTime: 60000, // Cache for 1 minute
         gcTime: 3600000, // Keep in cache for 1 hour
     })
+
+    // console.log('Attestations data:', data?.attestations);
 
     const filteredAttestations = useMemo(() => {
         if (!data?.attestations) return []

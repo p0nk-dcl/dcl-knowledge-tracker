@@ -28,6 +28,8 @@ const INITIAL_ATTESTATIONS = gql`
       signatureCount
       totalReceivedFunds
       upvoteCount
+      title
+      authorName
     }
   }
 `
@@ -35,24 +37,24 @@ const INITIAL_ATTESTATIONS = gql`
 const ITEMS_PER_PAGE = 30
 
 export default async function SearchAttestationsPage() {
-    const queryClient = new QueryClient()
+  const queryClient = new QueryClient()
 
-    await queryClient.prefetchQuery({
-        queryKey: ['initialAttestations', 0, 'activatedAt', 'desc', false],
-        queryFn: async () => {
-            return request(url, INITIAL_ATTESTATIONS, {
-                first: ITEMS_PER_PAGE,
-                skip: 0,
-                orderBy: 'activatedAt',
-                orderDirection: 'desc',
-                isActivated: null // Initially fetch all attestations
-            })
-        }
-    })
+  await queryClient.prefetchQuery({
+    queryKey: ['initialAttestations', 0, 'activatedAt', 'desc', false],
+    queryFn: async () => {
+      return request(url, INITIAL_ATTESTATIONS, {
+        first: ITEMS_PER_PAGE,
+        skip: 0,
+        orderBy: 'activatedAt',
+        orderDirection: 'desc',
+        isActivated: null // Initially fetch all attestations
+      })
+    }
+  })
 
-    return (
-        <HydrationBoundary state={dehydrate(queryClient)}>
-            <SearchAttestations itemsPerPage={ITEMS_PER_PAGE} />
-        </HydrationBoundary>
-    )
+  return (
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <SearchAttestations itemsPerPage={ITEMS_PER_PAGE} />
+    </HydrationBoundary>
+  )
 }
