@@ -101,7 +101,9 @@ export default function SearchAttestations({ itemsPerPage }: SearchAttestationsP
         if (searchTerm) {
             filtered = filtered.filter(attestation =>
                 attestation.authors.some(author => author.toLowerCase().includes(searchTerm.toLowerCase())) ||
-                attestation.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+                attestation.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                attestation.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                attestation.authorName.toLowerCase().includes(searchTerm.toLowerCase())
             )
         }
 

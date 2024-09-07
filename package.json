@@ -48,6 +48,7 @@
     "node": ">=18.17.0"
   },
   "dependencies": {
+    "@headlessui/react": "^2.1.5",
     "@nomicfoundation/ethereumjs-util": "^9.0.4",
     "@svgdotjs/svg.js": "^3.2.4",
     "axios": "^1.7.4",

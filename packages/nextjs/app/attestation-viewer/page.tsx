@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, Fragment } from 'react';
 import dynamic from 'next/dynamic';
 import { ethers } from 'ethers';
 import { useAccount, useChainId, useWalletClient } from 'wagmi';
@@ -20,6 +20,8 @@ import {
 import { UserIcon, HandThumbUpIcon, CurrencyDollarIcon, TagIcon, ClockIcon, LinkIcon, DocumentDuplicateIcon } from '@heroicons/react/24/solid';
 import IPFSContent from './IPFSContent';
 import { emitWarning } from 'process';
+import { Dialog, Transition } from '@headlessui/react';
+import { ClipboardDocumentIcon, XMarkIcon } from '@heroicons/react/24/outline';
 
 const ForceGraph2D = dynamic(() => import('react-force-graph-2d'), { ssr: false });
 
@@ -37,6 +39,10 @@ export default function AttestationViewer({ params }: { params: { address?: stri
     const [ipfsContent, setIpfsContent] = useState<any>(null);
     const [hoveredNode, setHoveredNode] = useState<any>(null);
     const graphRef = useRef<HTMLDivElement>(null);
+    const [isEmbedModalOpen, setIsEmbedModalOpen] = useState(false);
+    const [embedCode, setEmbedCode] = useState('');
+    const [copySuccess, setCopySuccess] = useState(false);
+    const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
         setIsBrowser(true);
@@ -258,6 +264,36 @@ export default function AttestationViewer({ params }: { params: { address?: stri
         }
     };
 
+    const generateEmbedCode = () => {
+        const embedUrl = `${window.location.origin}/api/embed/${attestationAddress}`;
+        const code = `<iframe src="${embedUrl}" width="100%" height="300" frameborder="0"></iframe>`;
+        setEmbedCode(code);
+        setIsEmbedModalOpen(true);
+    };
+
+    const copyEmbedCode = () => {
+        navigator.clipboard.writeText(embedCode);
+        setCopySuccess(true);
+
+        // Clear any existing timeout
+        if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+        }
+
+        // Set a new timeout to clear the success message after 3 seconds
+        timeoutRef.current = setTimeout(() => {
+            setCopySuccess(false);
+        }, 3000);
+    };
+
+    const closeModal = () => {
+        setIsEmbedModalOpen(false);
+        setCopySuccess(false);
+        if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+        }
+    };
+
     return (
         <div className="container mx-auto px-4 py-8">
             <h1 className="text-3xl font-bold mb-8 text-center">Attestation Viewer</h1>
@@ -416,6 +452,59 @@ export default function AttestationViewer({ params }: { params: { address?: stri
                     </div>
                 </>
             )}
+
+            <button
+                onClick={generateEmbedCode}
+                className="bg-[#00FF38] hover:bg-green-400 text-black font-bold py-2 px-4 rounded flex items-center"
+            >
+                <DocumentDuplicateIcon className="w-5 h-5 mr-2" /> Get Embed Code
+            </button>
+
+            <Transition show={isEmbedModalOpen} as={Fragment}>
+                <Dialog
+                    as="div"
+                    className="fixed inset-0 z-10 overflow-y-auto"
+                    onClose={closeModal}
+                >
+                    <div className="min-h-screen px-4 text-center">
+                        <div className="fixed inset-0 bg-black opacity-30" />
+                        <span className="inline-block h-screen align-middle" aria-hidden="true">&#8203;</span>
+                        <Dialog.Panel className="inline-block w-full max-w-md p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl">
+                            <div className="flex justify-between items-center mb-4">
+                                <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900">
+                                    Embed Code
+                                </Dialog.Title>
+                                <button
+                                    onClick={closeModal}
+                                    className="text-gray-400 hover:text-gray-500"
+                                >
+                                    <XMarkIcon className="w-6 h-6" />
+                                </button>
+                            </div>
+                            <div className="mt-2">
+                                <textarea
+                                    readOnly
+                                    value={embedCode}
+                                    className="w-full h-24 p-2 text-sm text-gray-700 border rounded-md"
+                                />
+                            </div>
+                            <div className="mt-4 flex justify-between items-center">
+                                <button
+                                    type="button"
+                                    className="inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-[#00FF38] border border-transparent rounded-md hover:bg-green-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
+                                    onClick={copyEmbedCode}
+                                >
+                                    <ClipboardDocumentIcon className="w-5 h-5 mr-2" />
+                                    Copy to Clipboard
+                                </button>
+                                {copySuccess && (
+                                    <span className="text-green-500 text-sm">Copied successfully!</span>
+                                )}
+                            </div>
+                        </Dialog.Panel>
+                    </div>
+                </Dialog>
+            </Transition>
         </div>
     );
 }
