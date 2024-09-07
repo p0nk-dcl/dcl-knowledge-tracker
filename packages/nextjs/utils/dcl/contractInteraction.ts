@@ -1,19 +1,20 @@
 import { ethers } from 'ethers';
 import AttestationFactoryABI from '../../../hardhat/artifacts/contracts/AttestationFactory.sol/AttestationFactory.json';
 import { verifyContract, checkVerificationStatus } from '../../services/dcl/contractVerification';
+
 const attestationFactoryAddress = "0xE847673d2D61CDc2D14711826da2Db35b695CDc2"; //to replace when go mainnet
 const mainRegistryAddress = "0x1Bf972E053f4d73e4B21c184cff1aFfB88221e14"; //to replace when go mainnet
 const MAX_VERIFICATION_TIME = 5 * 60 * 1000; // 5 minutes in milliseconds
 const CHECK_INTERVAL = 30 * 1000; // 30 seconds in milliseconds
 
-interface WalletClient {
+export interface WalletClient {
     account: { address: string };
     chain: { id: number; name: string };
     transport: { request: (args: any) => Promise<any> };
     sendTransaction: (args: any) => Promise<`0x${string}`>;
 }
 
-async function walletClientToEthersProvider(walletClient: WalletClient) {
+export async function walletClientToEthersProvider(walletClient: WalletClient) {
     const network = {
         chainId: walletClient.chain.id,
         name: walletClient.chain.name
