@@ -13,6 +13,8 @@ export interface AttestationData {
     upvoteCount: bigint;
     totalReceivedFunds: bigint;
     signatureCount: bigint;
+    title: string;
+    authorName: string;
     currentBalance: bigint;
 }
 
@@ -51,6 +53,8 @@ export async function getAttestationData(
     const upvoteCount = await contract.upvoteCount();
     const totalReceivedFunds = await contract.totalReceivedFunds();
     const signatureCount = await contract.signatureCount();
+    const title = await contract.title();
+    const authorName = await contract.authorName();
     const currentBalance = await provider.getBalance(address);
 
     // Construct and return the AttestationData object
@@ -66,6 +70,8 @@ export async function getAttestationData(
         upvoteCount,
         totalReceivedFunds,
         signatureCount,
+        title,
+        authorName,
         currentBalance
     };
 }

@@ -38,6 +38,8 @@
   "packageManager": "yarn@3.2.3",
   "devDependencies": {
     "@nomicfoundation/hardhat-verify": "^2.0.9",
+    "@types/react": "^18.3.5",
+    "@types/react-dom": "^18.3.0",
     "@types/react-simple-maps": "^3.0.6",
     "@types/svgdom": "^0.1.2",
     "@types/topojson-client": "^3.1.4",
@@ -48,12 +50,15 @@
     "node": ">=18.17.0"
   },
   "dependencies": {
+    "@headlessui/react": "^2.1.5",
     "@nomicfoundation/ethereumjs-util": "^9.0.4",
     "@svgdotjs/svg.js": "^3.2.4",
+    "ajv": "^8.17.1",
     "axios": "^1.7.4",
     "canvas": "^2.11.2",
     "ethers": "^6.13.2",
     "fuse.js": "^7.0.0",
+    "ganache-cli": "^6.12.2",
     "graphql": "^16.9.0",
     "graphql-request": "^7.1.0",
     "has": "^1.0.4",
