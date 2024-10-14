@@ -23,7 +23,7 @@ Metis offers a comprehensive solution for:
 - Improving tracking and discoverability of valuable work and expertise (Putting the work onchain, enables author to build an onchain portfolio for all the contributors)
 - Securely documenting and preserving information (resisting censorship and information suppression by leveraging IPFS and blockchain technologies)
 
-
+For more information: https://docs.google.com/document/d/1fym6KiAtXgjSuijHkpL7VZKKbXhUPYU7oFTnK3Q0vh8/edit?usp=sharing
 
 ## Key Features
 
